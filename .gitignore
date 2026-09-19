@@ -1,0 +1,11 @@
+# opencode session state (local only)
+.omo/
+
+# editor backups created next to theme files (never in this repo, but just in case)
+*.bak.*
+
+# playwright browser artifacts
+.playwright-mcp/
+
+node_modules/
+*.log

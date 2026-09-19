@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCode Theme Editor</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-panel: #12151c;
+    --bg-elem: #171b24;
+    --bg-input: #1c212c;
+    --fg: #e6e8ee;
+    --fg-muted: #8b93a7;
+    --border: #262c3a;
+    --border-strong: #39415a;
+    --accent: #7aa2f7;
+    --ok: #9ece6a;
+    --err: #f7768e;
+    --warn: #e0af68;
+    --radius: 10px;
+    --checker-a: #2a2f3c;
+    --checker-b: #1b1f28;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font: 13px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button {
+    background: var(--bg-elem);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 11px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--border-strong); background: #1e2330; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #0b0d12; font-weight: 600; }
+  button.primary:hover { filter: brightness(1.08); }
+  button.danger:hover { border-color: var(--err); color: var(--err); }
+  input[type=text], input[type=number], select, textarea {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 9px;
+    outline: none;
+  }
+  input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  header .brand { font-weight: 700; letter-spacing: .2px; margin-right: 4px; }
+  header .brand span { color: var(--accent); }
+  header .spacer { flex: 1; }
+
+  main { flex: 1; display: grid; grid-template-columns: minmax(420px, 1fr) minmax(440px, 1fr); overflow: hidden; }
+  .pane { overflow: auto; padding: 14px; }
+  .pane.left { border-right: 1px solid var(--border); }
+  .pane.right { background: #0e1118; }
+
+  .group { margin-bottom: 16px; }
+  .group > h3 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .9px;
+    color: var(--fg-muted);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 22px 1fr 96px 34px 60px 34px;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 6px;
+    border-radius: 7px;
+  }
+  .row:hover { background: var(--bg-elem); }
+  .row .name { font-family: Consolas, "Cascadia Mono", monospace; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .swatches { display: flex; gap: 3px; }
+  .swatch {
+    width: 15px; height: 15px; border-radius: 4px; border: 1px solid var(--border-strong);
+    background-image: linear-gradient(45deg, var(--checker-a) 25%, transparent 25%),
+                      linear-gradient(-45deg, var(--checker-a) 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, var(--checker-a) 75%),
+                      linear-gradient(-45deg, transparent 75%, var(--checker-a) 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .swatch i { position: absolute; inset: 0; display: block; }
+  .row input[type=color] { width: 34px; height: 24px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer; }
+  .row input.val { width: 100%; font-family: Consolas, monospace; font-size: 11px; padding: 4px 6px; }
+  .row input.alpha { width: 100%; }
+  .row .linked { font-size: 10px; color: var(--fg-muted); text-align: center; cursor: pointer; user-select: none; }
+  .row .linked.split { color: var(--warn); font-weight: 700; }
+
+  .preview-shell { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .tui { font-family: Consolas, "Cascadia Mono", monospace; font-size: 12px; }
+  .tui .bar { padding: 6px 10px; display: flex; gap: 10px; align-items: center; }
+  .tui .body { display: grid; grid-template-columns: 190px 1fr; min-height: 330px; }
+  .tui .side { padding: 8px; }
+  .tui .side .item { padding: 4px 8px; border-radius: 6px; margin-bottom: 3px; }
+  .tui .main { padding: 10px; }
+  .tui .msg { margin-bottom: 10px; }
+  .tui .msg .who { font-weight: 700; margin-bottom: 2px; }
+  .tui .code { border-radius: 6px; padding: 8px 10px; margin: 8px 0; white-space: pre; overflow-x: auto; }
+  .tui .diff { border-radius: 6px; overflow: hidden; margin: 8px 0; }
+  .tui .diff div { padding: 1px 10px; white-space: pre; }
+  .tui .input { margin-top: 10px; padding: 8px 10px; border-radius: 6px; }
+  .tui .status { padding: 4px 10px; font-size: 11px; display: flex; gap: 14px; }
+  .tui h4 { margin: 8px 0 4px; }
+  .tui ul { margin: 4px 0; padding-left: 20px; }
+  .mode-head { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .9px; color: var(--fg-muted); }
+  .side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 1500px) { .side-by-side { grid-template-columns: 1fr; } }
+
+  .card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 14px; }
+  .card h3 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .9px; color: var(--fg-muted); }
+  .defs-row { display: grid; grid-template-columns: 1fr 34px 90px 30px; gap: 6px; align-items: center; margin-bottom: 5px; }
+  .muted { color: var(--fg-muted); }
+  .toasts { position: fixed; right: 14px; bottom: 14px; display: flex; flex-direction: column; gap: 8px; z-index: 50; max-width: 460px; }
+  .toast { background: var(--bg-elem); border: 1px solid var(--border-strong); border-left: 3px solid var(--accent); border-radius: 8px; padding: 9px 12px; word-break: break-word; }
+  .toast.ok { border-left-color: var(--ok); }
+  .toast.err { border-left-color: var(--err); }
+  textarea { width: 100%; min-height: 130px; font-family: Consolas, monospace; font-size: 11px; resize: vertical; }
+  .hidden { display: none !important; }
+  .pill { font-size: 10px; padding: 2px 7px; border-radius: 20px; border: 1px solid var(--border-strong); color: var(--fg-muted); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">OpenCode <span>Theme Editor</span></div>
+  <input type="text" id="themeName" placeholder="my-theme" style="width:150px" title="Theme name (a-z, 0-9, dot, dash, underscore)">
+  <select id="source" title="Where to load from">
+    <option value="preset">Preset</option>
+    <option value="user">My themes</option>
+  </select>
+  <select id="themeList" style="min-width:150px"></select>
+  <button id="btnLoad">Load</button>
+  <span class="spacer"></span>
+  <span class="pill" id="activePill">active: -</span>
+  <button id="btnMode" title="Toggle preview mode">Mode: Both</button>
+  <button id="btnImport">Import</button>
+  <button id="btnExport">Export</button>
+  <button id="btnReset">Reset</button>
+  <button class="danger" id="btnDelete">Delete</button>
+  <button class="primary" id="btnSave">Save</button>
+  <button class="primary" id="btnApply">Apply to opencode</button>
+</header>
+
+<main>
+  <section class="pane left">
+    <div id="groups"></div>
+    <div class="card">
+      <h3>defs palette</h3>
+      <div id="defsList"></div>
+      <div style="margin-top:8px;display:flex;gap:6px">
+        <input type="text" id="newDefName" placeholder="name" style="width:140px">
+        <input type="color" id="newDefColor" value="#7aa2f7" style="width:40px;height:28px;padding:0">
+        <button id="btnAddDef">Add</button>
+      </div>
+      <p class="muted" style="margin:8px 0 0">Tokens can reference these names instead of literal hex.</p>
+    </div>
+    <div class="card">
+      <h3>Raw JSON</h3>
+      <textarea id="rawJson" spellcheck="false"></textarea>
+      <div style="margin-top:8px;display:flex;gap:6px">
+        <button id="btnRawApply">Apply JSON</button>
+        <button id="btnRawRefresh">Refresh from editor</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane right">
+    <div class="card">
+      <h3>Live preview</h3>
+      <div id="previewHost"></div>
+      <p class="muted" style="margin:10px 0 0">Checkerboard = transparent. For real see-through, enable opacity/acrylic in your terminal.</p>
+    </div>
+  </section>
+</main>
+
+<div class="toasts" id="toasts"></div>
+<textarea id="importArea" class="hidden"></textarea>
+<input type="file" id="importFile" accept=".json,application/json" class="hidden">
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ * Token model - the exact 52 colour tokens opencode reads, grouped.
+ * ------------------------------------------------------------------ */
+var GROUPS = [
+  { title: "Core", tokens: ["primary","secondary","accent","error","warning","success","info"] },
+  { title: "Text", tokens: ["text","textMuted","selectedListItemText"] },
+  { title: "Surfaces", tokens: ["background","backgroundPanel","backgroundElement","backgroundMenu"] },
+  { title: "Borders", tokens: ["border","borderActive","borderSubtle"] },
+  { title: "Diff", tokens: ["diffAdded","diffRemoved","diffContext","diffHunkHeader","diffHighlightAdded","diffHighlightRemoved","diffAddedBg","diffRemovedBg","diffContextBg","diffLineNumber","diffAddedLineNumberBg","diffRemovedLineNumberBg"] },
+  { title: "Markdown", tokens: ["markdownText","markdownHeading","markdownLink","markdownLinkText","markdownCode","markdownBlockQuote","markdownEmph","markdownStrong","markdownHorizontalRule","markdownListItem","markdownListEnumeration","markdownImage","markdownImageText","markdownCodeBlock"] },
+  { title: "Syntax", tokens: ["syntaxComment","syntaxKeyword","syntaxFunction","syntaxVariable","syntaxString","syntaxNumber","syntaxType","syntaxOperator","syntaxPunctuation"] },
+  { title: "Advanced", tokens: ["thinkingOpacity"] }
+];
+var ALL_TOKENS = [];
+GROUPS.forEach(function (g) { g.tokens.forEach(function (t) { ALL_TOKENS.push(t); }); });
+var NUMERIC_TOKENS = { thinkingOpacity: true };
+
+var state = {
+  name: "my-theme",
+  theme: { theme: {} },
+  split: {},
+  mode: "both",
+  state: null,
+  dirty: false
+};
+
+/* ------------------------------------------------------------------ *
+ * Colour helpers
+ * ------------------------------------------------------------------ */
+
+// Expand #RGB / #RGBA / #RRGGBB / #RRGGBBAA into {r,g,b,a} with a in 0..1.
+function parseHex(hex) {
+  if (typeof hex !== "string") return null;
+  var s = hex.trim().replace(/^#/, "");
+  if (s.length === 3) s = s[0]+s[0]+s[1]+s[1]+s[2]+s[2];
+  else if (s.length === 4) s = s[0]+s[0]+s[1]+s[1]+s[2]+s[2]+s[3]+s[3];
+  if (!/^[0-9a-fA-F]{6}$/.test(s) && !/^[0-9a-fA-F]{8}$/.test(s)) return null;
+  var r = parseInt(s.substring(0,2),16);
+  var g = parseInt(s.substring(2,4),16);
+  var b = parseInt(s.substring(4,6),16);
+  var a = s.length === 8 ? parseInt(s.substring(6,8),16)/255 : 1;
+  return { r: r, g: g, b: b, a: a };
+}
+
+function toHex2(n) { var v = Math.max(0, Math.min(255, Math.round(n))).toString(16); return v.length === 1 ? "0"+v : v; }
+
+// Build the shortest lossless hex form: 6 digits when opaque, else 8.
+function buildHex(r, g, b, a) {
+  var base = "#" + toHex2(r) + toHex2(g) + toHex2(b);
+  if (a >= 1) return base;
+  return base + toHex2(a * 255);
+}
+
+// xterm 256-colour approximation, mirroring opencode's ANSI handling.
+var ANSI16 = [[0,0,0],[128,0,0],[0,128,0],[128,128,0],[0,0,128],[128,0,128],[0,128,128],[192,192,192],
+              [128,128,128],[255,0,0],[0,255,0],[255,255,0],[0,0,255],[255,0,255],[0,255,255],[255,255,255]];
+var CUBE = [0,95,135,175,215,255];
+function ansiToRgb(n) {
+  if (n < 16) return ANSI16[n];
+  if (n < 232) {
+    var i = n - 16;
+    return [CUBE[Math.floor(i/36)], CUBE[Math.floor(i/6)%6], CUBE[i%6]];
+  }
+  var g = 8 + (n - 232) * 10;
+  return [g, g, g];
+}
+
+function cssFromRgb(rgb, a) {
+  if (a === undefined) a = 1;
+  if (a === 0) return "transparent";
+  return "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "," + (Math.round(a*1000)/1000) + ")";
+}
+
+// Resolve any theme value to a CSS colour, mirroring opencode's resolver.
+function resolveValue(value, mode, seen) {
+  seen = seen || [];
+  var defs = state.theme.defs || {};
+  var theme = state.theme.theme || {};
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") { var c = ansiToRgb(value); return cssFromRgb(c, 1); }
+  if (typeof value === "string") {
+    if (value === "none" || value === "transparent") return "transparent";
+    if (value.charAt(0) === "#") { var p = parseHex(value); return p ? cssFromRgb([p.r,p.g,p.b], p.a) : null; }
+    if (seen.indexOf(value) !== -1) return null;
+    var next = defs[value] !== undefined ? defs[value] : theme[value];
+    if (next === undefined) return null;
+    return resolveValue(next, mode, seen.concat([value]));
+  }
+  if (typeof value === "object") return resolveValue(value[mode], mode, seen);
+  return null;
+}
+
+function resolveToken(token, mode) {
+  if (NUMERIC_TOKENS[token]) return null;
+  return resolveValue((state.theme.theme || {})[token], mode);
+}
+
+// Extract a hex+alpha for the pickers, from a raw value or its resolution.
+function editableColor(token, mode) {
+  var raw = (state.theme.theme || {})[token];
+  if (raw === undefined) return { hex: "#000000", alpha: 1 };
+  if (typeof raw === "string" && raw.charAt(0) === "#") {
+    var p = parseHex(raw);
+    if (p) return { hex: "#"+toHex2(p.r)+toHex2(p.g)+toHex2(p.b), alpha: p.a };
+  }
+  if (typeof raw === "number") { var c = ansiToRgb(raw); return { hex: "#"+toHex2(c[0])+toHex2(c[1])+toHex2(c[2]), alpha: 1 }; }
+  var css = resolveValue(raw, mode);
+  if (css && css !== "transparent") {
+    var m = /rgba\((\d+),(\d+),(\d+),([0-9.]+)\)/.exec(css);
+    if (m) return { hex: "#"+toHex2(+m[1])+toHex2(+m[2])+toHex2(+m[3]), alpha: parseFloat(m[4]) };
+  }
+  return { hex: "#000000", alpha: 1 };
+}
+
+/* ------------------------------------------------------------------ *
+ * Value read/write, preserving the original shape when untouched
+ * ------------------------------------------------------------------ */
+
+function getSideValue(token, mode) {
+  var raw = (state.theme.theme || {})[token];
+  if (raw === undefined) return undefined;
+  if (raw !== null && typeof raw === "object") return raw[mode];
+  return raw;
+}
+
+// Write a new value for one side. Keeps a scalar scalar while both sides match.
+function setSideValue(token, mode, value) {
+  var theme = state.theme.theme;
+  var raw = theme[token];
+  if (raw !== null && typeof raw === "object") {
+    theme[token] = { dark: raw.dark, light: raw.light };
+    theme[token][mode] = value;
+    return;
+  }
+  if (state.split[token]) {
+    var other = raw === undefined ? value : raw;
+    theme[token] = {};
+    theme[token][mode] = value;
+    theme[token][mode === "dark" ? "light" : "dark"] = other;
+    return;
+  }
+  theme[token] = value;
+}
+
+/* ------------------------------------------------------------------ *
+ * Rendering - token rows
+ * ------------------------------------------------------------------ */
+
+function renderGroups() {
+  var host = document.getElementById("groups");
+  host.innerHTML = "";
+  GROUPS.forEach(function (g) {
+    var wrap = document.createElement("div");
+    wrap.className = "group";
+    var h = document.createElement("h3");
+    h.textContent = g.title;
+    wrap.appendChild(h);
+    g.tokens.forEach(function (token) { wrap.appendChild(renderRow(token)); });
+    host.appendChild(wrap);
+  });
+}
+
+function renderRow(token) {
+  var row = document.createElement("div");
+  row.className = "row";
+  row.dataset.token = token;
+
+  var sw = document.createElement("div");
+  sw.className = "swatches";
+  ["dark","light"].forEach(function (m) {
+    var s = document.createElement("div");
+    s.className = "swatch";
+    var i = document.createElement("i");
+    i.dataset.swatch = m;
+    i.dataset.token = token;
+    s.appendChild(i);
+    sw.appendChild(s);
+  });
+
+  var name = document.createElement("div");
+  name.className = "name";
+  name.textContent = token;
+
+  if (NUMERIC_TOKENS[token]) {
+    var num = document.createElement("input");
+    num.type = "number"; num.step = "0.05"; num.min = "0"; num.max = "1";
+    num.className = "val";
+    num.dataset.num = token;
+    num.value = (state.theme.theme[token] !== undefined) ? state.theme.theme[token] : 0.6;
+    num.addEventListener("input", function () {
+      var v = parseFloat(num.value);
+      if (!isNaN(v)) { state.theme.theme[token] = Math.max(0, Math.min(1, v)); state.dirty = true; paint(); }
+    });
+    row.appendChild(sw);
+    row.appendChild(name);
+    row.appendChild(num);
+    row.appendChild(document.createElement("div"));
+    row.appendChild(document.createElement("div"));
+    row.appendChild(document.createElement("div"));
+    return row;
+  }
+
+  var color = document.createElement("input");
+  color.type = "color";
+  color.dataset.color = token;
+
+  var val = document.createElement("input");
+  val.type = "text";
+  val.className = "val";
+  val.dataset.text = token;
+  val.title = "hex, ANSI 0-255, none, transparent, or a defs name";
+
+  var alpha = document.createElement("input");
+  alpha.type = "range";
+  alpha.min = "0"; alpha.max = "100"; alpha.step = "1";
+  alpha.className = "alpha";
+  alpha.dataset.alpha = token;
+  alpha.title = "Alpha (writes #RRGGBBAA)";
+
+  var link = document.createElement("div");
+  link.className = "linked";
+  link.dataset.link = token;
+  link.title = "Click to edit dark and light independently";
+  link.textContent = state.split[token] ? "SPLIT" : "LINK";
+  link.addEventListener("click", function () {
+    state.split[token] = !state.split[token];
+    if (!state.split[token]) {
+      // Collapse back to a single scalar when both sides agree.
+      var t = state.theme.theme[token];
+      if (t !== null && typeof t === "object" && t.dark === t.light) state.theme.theme[token] = t.dark;
+    }
+    renderGroups(); paint();
+  });
+
+  color.addEventListener("input", function () {
+    var mode = (state.mode === "light") ? "light" : "dark";
+    var p = parseHex(color.value);
+    var cur = editableColor(token, mode);
+    if (p) writeColor(token, mode, p.r, p.g, p.b, cur.alpha);
+  });
+
+  val.addEventListener("change", function () {
+    var mode = (state.mode === "light") ? "light" : "dark";
+    var raw = val.value.trim();
+    if (raw === "") return;
+    if (/^\d+$/.test(raw)) { var n = parseInt(raw, 10); if (n >= 0 && n <= 255) { setSideValue(token, mode, n); afterEdit(); return; } }
+    if (raw === "none" || raw === "transparent" || raw.charAt(0) === "#" || /^[A-Za-z0-9._-]+$/.test(raw)) {
+      setSideValue(token, mode, raw); afterEdit(); return;
+    }
+    toast("Unrecognised value: " + raw, "err");
+  });
+
+  alpha.addEventListener("input", function () {
+    var mode = (state.mode === "light") ? "light" : "dark";
+    var cur = editableColor(token, mode);
+    var p = parseHex(cur.hex);
+    if (p) writeColor(token, mode, p.r, p.g, p.b, parseInt(alpha.value, 10) / 100);
+  });
+
+  row.appendChild(sw);
+  row.appendChild(name);
+  row.appendChild(color);
+  row.appendChild(val);
+  row.appendChild(alpha);
+  row.appendChild(link);
+  return row;
+}
+
+function writeColor(token, mode, r, g, b, a) {
+  setSideValue(token, mode, buildHex(r, g, b, a));
+  afterEdit();
+}
+
+function afterEdit() {
+  state.dirty = true;
+  paint();
+}
+
+/* ------------------------------------------------------------------ *
+ * Painting: swatches, inputs, preview, raw JSON
+ * ------------------------------------------------------------------ */
+
+function paint() {
+  ALL_TOKENS.forEach(function (token) {
+    if (NUMERIC_TOKENS[token]) return;
+    ["dark","light"].forEach(function (m) {
+      var el = document.querySelector('[data-swatch="' + m + '"][data-token="' + token + '"]');
+      if (el) {
+        var c = resolveToken(token, m);
+        el.style.background = (c && c !== "transparent") ? c : "transparent";
+      }
+    });
+    var valEl = document.querySelector('[data-text="' + token + '"]');
+    if (valEl && document.activeElement !== valEl) {
+      var raw = (state.theme.theme || {})[token];
+      valEl.value = (raw === undefined) ? "" : (typeof raw === "string" ? raw : (typeof raw === "number" ? String(raw) : "(dark/light)"));
+    }
+    var colEl = document.querySelector('[data-color="' + token + '"]');
+    if (colEl) colEl.value = editableColor(token, state.mode === "light" ? "light" : "dark").hex;
+    var aEl = document.querySelector('[data-alpha="' + token + '"]');
+    if (aEl) aEl.value = String(Math.round(editableColor(token, state.mode === "light" ? "light" : "dark").alpha * 100));
+  });
+  renderPreview();
+  refreshRaw();
+  renderDefs();
+}
+
+function previewHtml(mode) {
+  var c = {};
+  ALL_TOKENS.forEach(function (t) { c[t] = resolveToken(t, mode) || "transparent"; });
+  function g(t) { return c[t]; }
+  var opacity = (state.theme.theme.thinkingOpacity !== undefined) ? state.theme.theme.thinkingOpacity : 0.6;
+  var h = [];
+  h.push('<div class="tui" style="background:' + g("background") + ';color:' + g("text") + '">');
+  h.push('<div class="bar" style="background:' + g("backgroundPanel") + ';border-bottom:1px solid ' + g("border") + '">');
+  h.push('<b style="color:' + g("primary") + '">opencode</b>');
+  h.push('<span style="color:' + g("textMuted") + '">theme: ' + esc(state.name) + '</span>');
+  h.push('<span style="color:' + g("success") + '">' + esc(mode) + '</span>');
+  h.push('</div>');
+  h.push('<div class="body">');
+  h.push('<div class="side" style="background:' + g("backgroundPanel") + ';border-right:1px solid ' + g("border") + '">');
+  h.push('<div style="color:' + g("textMuted") + ';margin-bottom:6px">Sessions</div>');
+  h.push('<div class="item" style="color:' + g("text") + '">fix auth bug</div>');
+  h.push('<div class="item" style="background:' + g("backgroundElement") + ';color:' + g("selectedListItemText") + '">refactor parser</div>');
+  h.push('<div class="item" style="color:' + g("text") + '">write tests</div>');
+  h.push('<div class="item" style="color:' + g("textMuted") + '">docs</div>');
+  h.push('</div>');
+  h.push('<div class="main" style="background:' + g("background") + '">');
+  h.push('<div class="msg"><div class="who" style="color:' + g("primary") + '">You</div><div style="color:' + g("text") + '">Add a retry to the fetch helper.</div></div>');
+  h.push('<div class="msg"><div class="who" style="color:' + g("secondary") + '">Assistant</div>');
+  h.push('<div style="color:' + g("markdownText") + '">I will update the helper and ' + '<span style="color:' + g("markdownStrong") + '">keep it small</span>.</div>');
+  h.push('<h4 style="color:' + g("markdownHeading") + '">Plan</h4>');
+  h.push('<ul style="color:' + g("markdownListItem") + '">');
+  h.push('<li><span style="color:' + g("markdownListEnumeration") + '">1.</span> add backoff</li>');
+  h.push('<li><span style="color:' + g("markdownListEnumeration") + '">2.</span> cover with a test</li>');
+  h.push('</ul>');
+  h.push('<div class="code" style="background:' + g("backgroundElement") + ';color:' + g("markdownCodeBlock") + '">'
+    + '<span style="color:' + g("syntaxKeyword") + '">async function</span> <span style="color:' + g("syntaxFunction") + '">fetchJson</span><span style="color:' + g("syntaxPunctuation") + '">(</span>url<span style="color:' + g("syntaxPunctuation") + '">,</span> <span style="color:' + g("syntaxVariable") + '">retries</span> <span style="color:' + g("syntaxOperator") + '">=</span> <span style="color:' + g("syntaxNumber") + '">3</span><span style="color:' + g("syntaxPunctuation") + '">)</span> <span style="color:' + g("syntaxPunctuation") + '">{</span>\n'
+    + '  <span style="color:' + g("syntaxComment") + '">// retry with backoff</span>\n'
+    + '  <span style="color:' + g("syntaxKeyword") + '">const</span> res <span style="color:' + g("syntaxOperator") + '">=</span> <span style="color:' + g("syntaxKeyword") + '">await</span> <span style="color:' + g("syntaxFunction") + '">fetch</span><span style="color:' + g("syntaxPunctuation") + '">(</span>url<span style="color:' + g("syntaxPunctuation") + '">)</span>\n'
+    + '  <span style="color:' + g("syntaxKeyword") + '">return</span> res<span style="color:' + g("syntaxPunctuation") + '">.</span><span style="color:' + g("syntaxFunction") + '">json</span><span style="color:' + g("syntaxPunctuation") + '">()</span>\n'
+    + '<span style="color:' + g("syntaxPunctuation") + '">}</span></div>');
+  h.push('<div class="diff">');
+  h.push('<div style="background:' + g("diffAddedBg") + ';color:' + g("diffAdded") + '">+ const retry = true</div>');
+  h.push('<div style="background:' + g("diffRemovedBg") + ';color:' + g("diffRemoved") + '">- const retry = false</div>');
+  h.push('<div style="background:' + g("diffContextBg") + ';color:' + g("diffContext") + '">  return res</div>');
+  h.push('<div style="background:' + g("diffContextBg") + ';color:' + g("diffHunkHeader") + '">@@ -1,3 +1,3 @@</div>');
+  h.push('</div>');
+  h.push('<div style="color:' + g("textMuted") + ';opacity:' + opacity + '">thinking...</div>');
+  h.push('<div class="input" style="background:' + g("backgroundElement") + ';color:' + g("textMuted") + ';border:1px solid ' + g("border") + '">Ask anything</div>');
+  h.push('</div></div>');
+  h.push('<div class="status" style="background:' + g("backgroundPanel") + ';border-top:1px solid ' + g("border") + ';color:' + g("textMuted") + '">');
+  h.push('<span style="color:' + g("info") + '">build</span>');
+  h.push('<span style="color:' + g("warning") + '">warn</span>');
+  h.push('<span style="color:' + g("error") + '">error</span>');
+  h.push('<span style="color:' + g("accent") + '">accent</span>');
+  h.push('</div></div>');
+  return h.join("");
+}
+
+function renderPreview() {
+  var host = document.getElementById("previewHost");
+  if (state.mode === "both") {
+    host.innerHTML = '<div class="side-by-side"><div><p class="mode-head">dark</p><div class="preview-shell">'
+      + previewHtml("dark") + '</div></div><div><p class="mode-head">light</p><div class="preview-shell">'
+      + previewHtml("light") + '</div></div></div>';
+  } else {
+    host.innerHTML = '<p class="mode-head">' + state.mode + '</p><div class="preview-shell">'
+      + previewHtml(state.mode) + '</div>';
+  }
+}
+
+function renderDefs() {
+  var host = document.getElementById("defsList");
+  var defs = state.theme.defs || {};
+  var names = Object.keys(defs).sort();
+  host.innerHTML = "";
+  if (!names.length) {
+    host.innerHTML = '<p class="muted" style="margin:0">No defs entries.</p>';
+    return;
+  }
+  names.forEach(function (n) {
+    var row = document.createElement("div");
+    row.className = "defs-row";
+    var label = document.createElement("div");
+    label.className = "name";
+    label.textContent = n;
+    var col = document.createElement("input");
+    col.type = "color";
+    var p = parseHex(defs[n]);
+    col.value = p ? "#"+toHex2(p.r)+toHex2(p.g)+toHex2(p.b) : "#000000";
+    col.addEventListener("input", function () { defs[n] = col.value; state.dirty = true; paint(); });
+    var txt = document.createElement("input");
+    txt.type = "text"; txt.className = "val"; txt.value = defs[n];
+    txt.addEventListener("change", function () { defs[n] = txt.value.trim(); state.dirty = true; paint(); });
+    var del = document.createElement("button");
+    del.textContent = "x"; del.title = "Remove";
+    del.addEventListener("click", function () { delete defs[n]; state.dirty = true; paint(); });
+    row.appendChild(label); row.appendChild(col); row.appendChild(txt); row.appendChild(del);
+    host.appendChild(row);
+  });
+}
+
+function refreshRaw() {
+  var el = document.getElementById("rawJson");
+  if (document.activeElement === el) return;
+  el.value = JSON.stringify(buildThemeObject(), null, 2);
+}
+
+/* ------------------------------------------------------------------ *
+ * Theme object assembly
+ * ------------------------------------------------------------------ */
+
+function buildThemeObject() {
+  var out = { "$schema": "https://opencode.ai/theme.json" };
+  var defs = state.theme.defs;
+  if (defs && Object.keys(defs).length) out.defs = defs;
+  out.theme = state.theme.theme || {};
+  return out;
+}
+
+function loadThemeObject(obj, name) {
+  state.theme = { defs: (obj && obj.defs) || {}, theme: (obj && obj.theme) || {} };
+  state.split = {};
+  if (name) state.name = name;
+  document.getElementById("themeName").value = state.name;
+  state.dirty = false;
+  renderGroups();
+  paint();
+}
+
+/* ------------------------------------------------------------------ *
+ * API
+ * ------------------------------------------------------------------ */
+
+function api(path, opts) {
+  return fetch(path, opts).then(function (r) {
+    return r.json().then(function (j) {
+      if (!r.ok || j.ok === false) throw new Error(j.error || ("HTTP " + r.status));
+      return j;
+    });
+  });
+}
+
+function validName(n) { return /^[A-Za-z0-9._-]+$/.test(n) && n.length > 0 && n.length <= 64 && n !== "." && n !== ".."; }
+
+function currentName() {
+  var n = document.getElementById("themeName").value.trim();
+  if (!validName(n)) { toast("Invalid theme name. Use a-z, 0-9, dot, dash, underscore (max 64).", "err"); return null; }
+  return n;
+}
+
+function loadState() {
+  return api("/api/state").then(function (s) {
+    state.state = s;
+    document.getElementById("activePill").textContent = "active: " + (s.activeTheme || "-");
+    fillThemeList();
+    return s;
+  });
+}
+
+function fillThemeList() {
+  var src = document.getElementById("source").value;
+  var list = document.getElementById("themeList");
+  var names = (src === "preset") ? (state.state.presets || []) : (state.state.userThemes || []);
+  list.innerHTML = "";
+  if (!names.length) {
+    var o = document.createElement("option");
+    o.value = ""; o.textContent = (src === "preset") ? "(no presets)" : "(no saved themes)";
+    list.appendChild(o);
+    return;
+  }
+  names.forEach(function (n) {
+    var o = document.createElement("option");
+    o.value = n; o.textContent = n;
+    list.appendChild(o);
+  });
+}
+
+function loadTheme() {
+  var name = document.getElementById("themeList").value;
+  var src = document.getElementById("source").value;
+  if (!name) return;
+  api("/api/theme?source=" + encodeURIComponent(src) + "&name=" + encodeURIComponent(name))
+    .then(function (r) { loadThemeObject(r.theme, name); toast("Loaded " + src + ": " + name, "ok"); })
+    .catch(function (e) { toast("Load failed: " + e.message, "err"); });
+}
+
+function saveTheme(apply) {
+  var name = currentName();
+  if (!name) return;
+  var body = { name: name, theme: buildThemeObject() };
+  var ep = apply ? "/api/apply" : "/api/save";
+  api(ep, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    .then(function (r) {
+      state.dirty = false;
+      var msg = apply
+        ? ("Applied. Theme: " + r.themePath + " | tui.json: " + r.tuiConfigPath + (r.backups && r.backups.length ? " | backups: " + r.backups.join(", ") : ""))
+        : ("Saved: " + r.path + (r.backup ? " | backup: " + r.backup : ""));
+      toast(msg, "ok");
+      return loadState();
+    })
+    .catch(function (e) { toast((apply ? "Apply" : "Save") + " failed: " + e.message, "err"); });
+}
+
+function deleteTheme() {
+  var name = currentName();
+  if (!name) return;
+  if (!confirm("Delete theme '" + name + "'? A backup will be kept.")) return;
+  api("/api/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name }) })
+    .then(function (r) { toast("Deleted. Backup: " + r.backup, "ok"); return loadState(); })
+    .catch(function (e) { toast("Delete failed: " + e.message, "err"); });
+}
+
+function exportJson() {
+  var name = currentName() || "theme";
+  var blob = new Blob([JSON.stringify(buildThemeObject(), null, 2) + "\n"], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+/* ------------------------------------------------------------------ *
+ * UI plumbing
+ * ------------------------------------------------------------------ */
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, function (ch) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch];
+  });
+}
+
+function toast(msg, kind) {
+  var host = document.getElementById("toasts");
+  var el = document.createElement("div");
+  el.className = "toast " + (kind || "");
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(function () { el.remove(); }, 7000);
+}
+
+document.getElementById("source").addEventListener("change", fillThemeList);
+document.getElementById("btnLoad").addEventListener("click", loadTheme);
+document.getElementById("btnSave").addEventListener("click", function () { saveTheme(false); });
+document.getElementById("btnApply").addEventListener("click", function () { saveTheme(true); });
+document.getElementById("btnDelete").addEventListener("click", deleteTheme);
+document.getElementById("btnExport").addEventListener("click", exportJson);
+
+document.getElementById("btnMode").addEventListener("click", function () {
+  state.mode = state.mode === "both" ? "dark" : (state.mode === "dark" ? "light" : "both");
+  this.textContent = "Mode: " + state.mode.charAt(0).toUpperCase() + state.mode.slice(1);
+  paint();
+});
+
+document.getElementById("btnReset").addEventListener("click", function () {
+  if (!confirm("Discard unsaved edits and reload the selected theme?")) return;
+  loadTheme();
+});
+
+document.getElementById("btnAddDef").addEventListener("click", function () {
+  var n = document.getElementById("newDefName").value.trim();
+  if (!/^[A-Za-z0-9._-]+$/.test(n)) { toast("Invalid defs name.", "err"); return; }
+  if (!state.theme.defs) state.theme.defs = {};
+  state.theme.defs[n] = document.getElementById("newDefColor").value;
+  document.getElementById("newDefName").value = "";
+  state.dirty = true;
+  paint();
+});
+
+document.getElementById("btnRawApply").addEventListener("click", function () {
+  try {
+    var obj = JSON.parse(document.getElementById("rawJson").value);
+    if (!obj || typeof obj !== "object" || !obj.theme || typeof obj.theme !== "object") {
+      throw new Error("must contain a theme object");
+    }
+    loadThemeObject(obj, state.name);
+    toast("Applied raw JSON.", "ok");
+  } catch (e) {
+    toast("Invalid JSON: " + e.message, "err");
+  }
+});
+document.getElementById("btnRawRefresh").addEventListener("click", function () {
+  document.getElementById("rawJson").value = JSON.stringify(buildThemeObject(), null, 2);
+});
+
+document.getElementById("btnImport").addEventListener("click", function () {
+  document.getElementById("importFile").click();
+});
+document.getElementById("importFile").addEventListener("change", function (ev) {
+  var f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    try {
+      var obj = JSON.parse(String(reader.result));
+      loadThemeObject(obj, f.name.replace(/\.json$/i, ""));
+      toast("Imported " + f.name, "ok");
+    } catch (e) { toast("Import failed: " + e.message, "err"); }
+  };
+  reader.readAsText(f);
+  ev.target.value = "";
+});
+
+window.addEventListener("beforeunload", function (e) {
+  if (state.dirty) { e.preventDefault(); e.returnValue = ""; }
+});
+
+loadState()
+  .then(function () { return loadTheme(); })
+  .catch(function (e) { toast("Cannot reach the local server: " + e.message, "err"); });
+</script>
+</body>
+</html>
