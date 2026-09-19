@@ -62,8 +62,16 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 ## Making a transparent theme
 
 opencode accepts **8-digit hex with alpha** (`#RRGGBBAA`) even though the docs only
-mention 6-digit hex, and the literal values `none` / `transparent`. See
-[`examples/glass.json`](examples/glass.json) for a working glass theme:
+mention 6-digit hex, and the literal values `none` / `transparent`.
+
+Two ready-made transparent themes are included:
+
+- [`examples/nord-bluish.json`](examples/nord-bluish.json) - the Nord palette with
+  translucent slate-blue panels, a fully transparent background and a cyan active border.
+  This is the "Nord Bluish" look: dark glass over your wallpaper.
+- [`examples/glass.json`](examples/glass.json) - a neutral dark glass theme.
+
+Both are built the same way:
 
 ```json
 {
