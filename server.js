@@ -278,11 +278,16 @@ function assertDesktopClosed() {
   if (process.platform !== 'win32') return;
   let out = '';
   try {
-    out = execFileSync('tasklist', ['/FI', 'IMAGENAME eq OpenCode.exe', '/FO', 'CSV', '/NH'], { encoding: 'utf8' });
+    // tasklist image filters are case-insensitive, so "OpenCode.exe" also lists the
+    // lowercase opencode.exe CLI, which is never closed by the user. Ask for the real
+    // executable paths and keep only the Desktop install.
+    out = execFileSync('powershell', ['-NoProfile', '-NonInteractive', '-Command',
+      "Get-CimInstance Win32_Process -Filter \"Name='OpenCode.exe'\" | Where-Object { $_.ExecutablePath -like '*@opencode-aidesktop*' } | ForEach-Object { $_.ProcessId }"
+    ], { encoding: 'utf8' });
   } catch (e) {
     return;
   }
-  if (/OpenCode\.exe/i.test(out)) {
+  if (/\d/.test(out)) {
     throw httpError(409, 'Close every OpenCode Desktop window before patching or restoring');
   }
 }

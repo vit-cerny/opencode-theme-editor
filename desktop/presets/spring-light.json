@@ -10,13 +10,16 @@
     "--v2-background-surface-sunken": "#E7EFE3",
     "--v2-background-interactive-base": "#DCEBD8",
     "--v2-text-text-base": "#33443A",
-    "--v2-text-text-weak": "#687A6D",
+    "--v2-text-text-weak": "#5A6C60",
     "--v2-text-text-strong": "#17251C",
-    "--v2-border-border-base": "#C7D5C3",
+    "--v2-border-border-base": "#B3C4AF",
     "--v2-border-border-weak": "#DEE7DB",
-    "--v2-border-focus": "#4D9270",
-    "--v2-icon-icon-base": "#527563",
-    "--v2-icon-icon-weak": "#829789"
+    "--v2-border-focus": "#2F6E4F",
+    "--v2-icon-icon-base": "#3F6455",
+    "--v2-icon-icon-weak": "#5F7A68",
+    "--v2-state-fg-success": "#2F6E4F",
+    "--v2-state-fg-warning": "#7A5A12",
+    "--v2-state-fg-danger": "#9E3A45"
   },
   "layout": {
     "density": "comfortable",
