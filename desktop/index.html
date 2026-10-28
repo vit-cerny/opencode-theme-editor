@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCode Desktop Theme Editor</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0a0c10; --panel:#11141a; --elem:#171b23; --input:#1b2029;
+  --line:#252b36; --line-2:#333b49;
+  --fg:#e7ebf2; --fg-2:#9aa4b5; --fg-3:#6b7688;
+  --accent:#7dcfff; --ok:#7ee2a8; --warn:#e8c07d; --err:#f28b9b;
+  --r-panel:12px; --r-ctl:8px; --r-sm:6px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:var(--bg); color:var(--fg);
+  font:13px/1.55 ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
+  display:flex; flex-direction:column; overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{
+  background:var(--elem); border:1px solid var(--line); border-radius:var(--r-ctl);
+  padding:8px 13px; cursor:pointer; transition:border-color .12s, background .12s;
+}
+button:hover:not(:disabled){border-color:var(--line-2); background:#1d222c}
+button:active:not(:disabled){transform:translateY(1px)}
+button:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--accent); border-color:var(--accent); color:#08222e; font-weight:650}
+button.primary:hover:not(:disabled){background:#95d9ff; border-color:#95d9ff}
+button.ghost{background:transparent}
+button.danger{color:var(--err)}
+button.danger:hover:not(:disabled){border-color:var(--err)}
+input[type=text],select,textarea{
+  background:var(--input); border:1px solid var(--line); border-radius:var(--r-ctl);
+  padding:7px 10px; outline:none;
+}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent)}
+input[type=range]{accent-color:var(--accent); width:100%}
+input[type=color]{
+  width:38px;height:26px;padding:0;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:none;cursor:pointer
+}
+input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+
+.top{
+  display:flex;align-items:center;gap:12px;padding:12px 18px;
+  background:var(--panel);border-bottom:1px solid var(--line);flex:0 0 auto;
+}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.01em}
+.brand .mark{
+  width:22px;height:22px;border-radius:6px;display:grid;place-items:center;
+  background:linear-gradient(150deg,#7dcfff,#3f7fa8);color:#06202b;font-size:12px;font-weight:800;
+}
+.brand small{color:var(--fg-3);font-weight:500;letter-spacing:0}
+.grow{flex:1}
+.state{
+  display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--fg-2);
+  background:var(--elem);border:1px solid var(--line);border-radius:99px;padding:5px 12px;
+}
+.state .dot{width:7px;height:7px;border-radius:50%;background:var(--fg-3)}
+.state.on .dot{background:var(--ok)}
+.state.off .dot{background:var(--warn)}
+
+.wrap{flex:1;display:grid;grid-template-columns:392px minmax(500px,1fr);overflow:hidden}
+.rail{
+  border-right:1px solid var(--line);overflow-y:auto;padding:16px 16px 40px;
+  background:var(--panel);
+}
+.stage{padding:18px;overflow-y:auto;min-width:0}
+.rail::-webkit-scrollbar,.stage::-webkit-scrollbar,.panel-body::-webkit-scrollbar{width:10px}
+.rail::-webkit-scrollbar-thumb,.stage::-webkit-scrollbar-thumb,.panel-body::-webkit-scrollbar-thumb{
+  background:#2b323d;border-radius:8px;border:3px solid var(--panel)
+}
+
+h2.sec{
+  margin:0 0 10px;font-size:11px;font-weight:650;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--fg-3);
+}
+.sec-block{margin-bottom:22px}
+.sec-block:last-child{margin-bottom:0}
+
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.preset{
+  text-align:left;padding:0;overflow:hidden;border-radius:var(--r-panel);
+  border:1px solid var(--line);background:var(--elem);cursor:pointer;
+}
+.preset:hover{border-color:var(--line-2)}
+.preset[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.preset .strip{display:flex;height:34px}
+.preset .strip i{flex:1}
+.preset .meta{padding:8px 10px 10px}
+.preset .meta b{display:block;font-size:12px;font-weight:600}
+.preset .meta span{display:block;font-size:11px;color:var(--fg-3);line-height:1.35;margin-top:2px}
+
+.ctl{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;margin-bottom:10px}
+.ctl label{color:var(--fg-2);font-size:12px}
+.ctl .val{color:var(--fg-3);font-size:11px;font-variant-numeric:tabular-nums}
+.ctl.full{grid-template-columns:1fr}
+.ctl.full input[type=range]{grid-column:1/-1}
+
+.swatch{display:grid;grid-template-columns:38px 1fr;gap:9px;align-items:center;
+  padding:7px;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--elem);margin-bottom:6px}
+.swatch .info{min-width:0}
+.swatch .nm{font-size:11.5px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.swatch .hex{font-size:10.5px;color:var(--fg-3);font-family:ui-monospace,Consolas,monospace}
+.swatch .row2{display:flex;align-items:center;gap:8px;margin-top:4px}
+.swatch .row2 input[type=range]{flex:1;height:14px}
+.swatch .row2 em{font-style:normal;font-size:10px;color:var(--fg-3);width:30px;text-align:right;font-variant-numeric:tabular-nums}
+
+.tabs{display:flex;gap:4px;margin-bottom:14px}
+.tabs button{padding:6px 13px;font-size:12px;border-radius:var(--r-ctl)}
+.tabs button[aria-selected=true]{background:var(--elem);border-color:var(--accent);color:var(--accent)}
+
+.step{
+  border:1px solid var(--line);border-radius:var(--r-panel);padding:13px 15px;
+  background:linear-gradient(180deg,#141922,#11141a);margin-bottom:14px;
+}
+.step h3{margin:0 0 5px;font-size:13px}
+.step p{margin:0;color:var(--fg-2);font-size:12px;line-height:1.5}
+.step ol{margin:8px 0 0;padding-left:18px;color:var(--fg-2);font-size:12px;line-height:1.7}
+.step code{background:#0c1016;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11px}
+.step.ok{border-color:#2a5b43;background:linear-gradient(180deg,#0f2018,#11141a)}
+.step.warn{border-color:#5c4a28;background:linear-gradient(180deg,#1f1a10,#11141a)}
+
+.panel-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.panel-head h1{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
+.panel-head .hint{color:var(--fg-3);font-size:12px}
+.panel-body{
+  border:1px solid var(--line);border-radius:var(--r-panel);overflow:hidden;background:#0d1015;
+}
+
+.frame{padding:22px;background:
+  radial-gradient(1100px 500px at 15% -10%,#1a2a38 0,transparent 60%),
+  radial-gradient(800px 400px at 85% 110%,#1b2436 0,transparent 55%),
+  #0d1015;}
+.win{
+  border-radius:12px;overflow:hidden;border:1px solid var(--t-line,#333);
+  box-shadow:0 26px 70px rgba(0,0,0,.55);
+  background:var(--t-bg,#111);color:var(--t-fg,#eee);
+  display:flex;flex-direction:column;min-height:430px;
+}
+.win .title{
+  display:flex;align-items:center;gap:9px;padding:0 12px;height:38px;
+  background:var(--t-panel,#1a1a1a);border-bottom:1px solid var(--t-line,#333);flex:0 0 auto;
+}
+.win .lights{display:flex;gap:6px}
+.win .lights i{width:10px;height:10px;border-radius:50%;background:var(--t-line,#444)}
+.win .tabs-bar{display:flex;gap:5px;margin-left:10px;font-size:11px;overflow:hidden}
+.win .tabs-bar span{
+  padding:4px 10px;border-radius:6px 6px 0 0;background:transparent;
+  color:var(--t-muted,#888);white-space:nowrap;
+}
+.win .tabs-bar span.act{background:var(--t-raised,#242424);color:var(--t-fg,#eee)}
+.win .body{display:grid;grid-template-columns:186px 1fr;flex:1;min-height:0}
+.win .side{
+  background:var(--t-panel,#1a1a1a);border-right:1px solid var(--t-line,#333);
+  padding:10px 8px;display:flex;flex-direction:column;gap:2px;
+}
+.win .side .hd{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--t-muted,#777);padding:4px 7px 7px}
+.win .side .it{padding:5px 8px;border-radius:6px;font-size:11.5px;color:var(--t-muted,#999);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.win .side .it.act{background:var(--t-sel,#2a3340);color:var(--t-fg,#eee)}
+.win .main{padding:20px 22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.win .main h4{margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--t-fg,#eee)}
+.win .main .sub{font-size:11.5px;color:var(--t-muted,#888);margin:0}
+.win .cards{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.win .cards .c{
+  border:1px solid var(--t-line,#333);border-radius:9px;padding:11px 12px;
+  background:var(--t-raised,#1e1e1e);
+}
+.win .cards .c b{display:block;font-size:11.5px;font-weight:600;color:var(--t-fg,#eee);margin-bottom:2px}
+.win .cards .c span{font-size:10.5px;color:var(--t-muted,#888);line-height:1.4}
+.win .composer{
+  margin-top:auto;border:1px solid var(--t-line,#333);border-radius:10px;
+  padding:10px 12px;background:var(--t-raised,#1e1e1e);
+  display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--t-muted,#888);
+}
+.win .composer .pill{
+  border:1px solid var(--t-line,#333);border-radius:99px;padding:2px 9px;font-size:10.5px;
+}
+.win .composer .send{
+  margin-left:auto;width:26px;height:26px;border-radius:50%;
+  background:var(--t-accent,#7dcfff);color:#07131a;display:grid;place-items:center;font-weight:800;font-size:12px;
+}
+
+pre.css{
+  margin:0;padding:16px 18px;font:11.5px/1.65 ui-monospace,Consolas,monospace;
+  color:#c9d4e3;max-height:520px;overflow:auto;white-space:pre;
+}
+
+.toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:9px;z-index:80;max-width:430px}
+.toast{
+  border:1px solid var(--line-2);border-left:3px solid var(--accent);border-radius:var(--r-ctl);
+  background:#151a23;padding:10px 13px;font-size:12px;line-height:1.5;
+  box-shadow:0 10px 34px rgba(0,0,0,.5); word-break:break-word;
+  animation:in .16s ease-out;
+}
+.toast.ok{border-left-color:var(--ok)}
+.toast.err{border-left-color:var(--err)}
+.toast.warn{border-left-color:var(--warn)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.skel{height:34px;border-radius:8px;background:linear-gradient(90deg,#161b23,#1e2531,#161b23);
+  background-size:200% 100%;animation:sh 1.1s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+.hide{display:none!important}
+.muted{color:var(--fg-3);font-size:11.5px;line-height:1.55}
+.row{display:flex;gap:8px;align-items:center}
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr}
+  .rail{border-right:0;border-bottom:1px solid var(--line);max-height:46vh}
+  .win .body{grid-template-columns:130px 1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <span class="mark">OC</span>
+    <span>Theme Editor <small>OpenCode Desktop</small></span>
+  </div>
+  <span class="state off" id="statePill"><span class="dot"></span><span id="stateText">Checking</span></span>
+  <span class="grow"></span>
+  <button class="ghost" id="btnReset">Reset colors</button>
+  <button id="btnRestore" class="danger">Restore original</button>
+  <button class="primary" id="btnInstall">Install to OpenCode</button>
+</header>
+
+<div class="wrap">
+  <aside class="rail">
+    <div class="sec-block">
+      <h2 class="sec">Preset shop</h2>
+      <div class="presets" id="presets">
+        <div class="skel"></div><div class="skel"></div>
+        <div class="skel"></div><div class="skel"></div>
+      </div>
+    </div>
+
+    <div class="sec-block">
+      <h2 class="sec">Window</h2>
+      <div class="ctl">
+        <label for="mode">Background mode</label>
+        <select id="mode">
+          <option value="transparent">Transparent</option>
+          <option value="acrylic">Acrylic blur</option>
+          <option value="opaque">Opaque</option>
+        </select>
+      </div>
+      <div class="ctl full">
+        <label for="opacity">Window opacity <span class="val" id="opacityVal">100%</span></label>
+        <input type="range" id="opacity" min="30" max="100" step="1" value="100">
+      </div>
+      <div class="ctl">
+        <label for="acrylic">Acrylic blur (Windows 11)</label>
+        <input type="checkbox" id="acrylic">
+      </div>
+      <p class="muted" id="modeNote">Transparent needs one install step, then a restart.</p>
+    </div>
+
+    <div class="sec-block">
+      <h2 class="sec">Layout</h2>
+      <div class="ctl">
+        <label for="density">Density</label>
+        <select id="density">
+          <option value="comfortable">Comfortable</option>
+          <option value="compact">Compact</option>
+        </select>
+      </div>
+      <div class="ctl full">
+        <label for="radius">Corner radius <span class="val" id="radiusVal">12px</span></label>
+        <input type="range" id="radius" min="0" max="24" step="1" value="12">
+      </div>
+      <div class="ctl full">
+        <label for="fontScale">Font scale <span class="val" id="fontVal">100%</span></label>
+        <input type="range" id="fontScale" min="85" max="125" step="1" value="100">
+      </div>
+    </div>
+
+    <div class="sec-block">
+      <h2 class="sec">Colors</h2>
+      <div id="colors"></div>
+    </div>
+
+    <div class="sec-block">
+      <h2 class="sec">Custom CSS</h2>
+      <div class="ctl full">
+        <textarea id="customCss" rows="5" placeholder="Extra CSS appended after the generated theme"></textarea>
+      </div>
+    </div>
+  </aside>
+
+  <section class="stage">
+    <div id="banner"></div>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="preview">Preview</button>
+      <button role="tab" aria-selected="false" data-tab="css">Generated CSS</button>
+    </div>
+
+    <div id="tab-preview">
+      <div class="panel-head">
+        <h1 id="themeName">Nord Bluish</h1>
+        <span class="hint" id="themeDesc"></span>
+      </div>
+      <div class="panel-body">
+        <div class="frame">
+          <div class="win" id="win">
+            <div class="title">
+              <div class="lights"><i></i><i></i><i></i></div>
+              <div class="tabs-bar">
+                <span class="act">New session - 2026-10-28</span>
+                <span>New session - 2026-10-27</span>
+              </div>
+            </div>
+            <div class="body">
+              <div class="side">
+                <div class="hd">Sessions</div>
+                <div class="it act">Picked a glass theme</div>
+                <div class="it">Desktop appearance</div>
+                <div class="it">Review changes</div>
+                <div class="it">Fix the parser</div>
+                <div class="it">Write tests</div>
+              </div>
+              <div class="main">
+                <h4>What should we build in opencode?</h4>
+                <p class="sub">Ask anything, or pick a starting point.</p>
+                <div class="cards">
+                  <div class="c"><b>Explore code</b><span>Understand how a module works</span></div>
+                  <div class="c"><b>Build a feature</b><span>Ship a new app or tool</span></div>
+                  <div class="c"><b>Review changes</b><span>Read a diff and suggest fixes</span></div>
+                  <div class="c"><b>Fix a failure</b><span>Trace an error to its cause</span></div>
+                </div>
+                <div class="composer">
+                  <span>Ask anything</span>
+                  <span class="pill">Local</span>
+                  <span class="pill">master</span>
+                  <span class="send">&#8593;</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-css" class="hide">
+      <div class="panel-head">
+        <h1>Generated CSS</h1>
+        <span class="hint">Written to %APPDATA%\opencode-theme-editor\desktop.css</span>
+      </div>
+      <div class="panel-body"><pre class="css" id="cssOut">Generating</pre></div>
+    </div>
+  </section>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+"use strict";
+
+var LABELS = {
+  background: "App background",
+  panel: "Sidebar / panels",
+  raised: "Raised cards",
+  sunken: "Sunken areas",
+  interactive: "Selected row",
+  text: "Text",
+  muted: "Muted text",
+  strong: "Strong text",
+  border: "Borders",
+  subtle: "Subtle borders",
+  focus: "Accent / focus",
+  accent: "Icons",
+  success: "Success",
+  warning: "Warning",
+  error: "Error"
+};
+
+var state = { theme: null, presets: [], patch: null, busy: false };
+
+function $(id) { return document.getElementById(id); }
+
+function api(path, opts) {
+  return fetch(path, opts).then(function (r) {
+    return r.json().then(function (j) {
+      if (!r.ok || j.ok === false) throw new Error(j.error || ("HTTP " + r.status));
+      return j;
+    });
+  });
+}
+
+function post(path, body) {
+  return api(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+}
+
+function toast(msg, kind) {
+  var host = $("toasts");
+  var el = document.createElement("div");
+  el.className = "toast " + (kind || "");
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(function () {
+    el.style.opacity = "0";
+    el.style.transition = "opacity .2s";
+    setTimeout(function () { el.remove(); }, 220);
+  }, kind === "err" ? 11000 : 6000);
+}
+
+function hexToRgb(hex) {
+  var v = String(hex || "#000000").replace("#", "");
+  if (v.length === 6) v += "ff";
+  return {
+    r: parseInt(v.slice(0, 2), 16),
+    g: parseInt(v.slice(2, 4), 16),
+    b: parseInt(v.slice(4, 6), 16),
+    a: parseInt(v.slice(6, 8), 16) / 255
+  };
+}
+
+function rgba(hex) {
+  var c = hexToRgb(hex);
+  return "rgba(" + c.r + "," + c.g + "," + c.b + "," + (Math.round(c.a * 1000) / 1000) + ")";
+}
+
+function alphaHex(hex) {
+  return parseInt(String(hex).slice(7, 9), 16);
+}
+
+function withAlpha(hex, byte) {
+  return String(hex).slice(0, 7) + byte.toString(16).padStart(2, "0");
+}
+
+function setPreview() {
+  var t = state.theme;
+  if (!t) return;
+  var w = $("win");
+  w.style.setProperty("--t-bg", rgba(t.colors.background));
+  w.style.setProperty("--t-panel", rgba(t.colors.panel));
+  w.style.setProperty("--t-raised", rgba(t.colors.raised));
+  w.style.setProperty("--t-line", rgba(t.colors.border));
+  w.style.setProperty("--t-fg", rgba(t.colors.text));
+  w.style.setProperty("--t-muted", rgba(t.colors.muted));
+  w.style.setProperty("--t-sel", rgba(t.colors.interactive));
+  w.style.setProperty("--t-accent", rgba(t.colors.focus));
+  w.style.borderRadius = t.layout.borderRadius + "px";
+  w.style.opacity = String(t.mode === "opaque" ? 1 : t.opacity);
+  w.style.fontSize = (13 * t.layout.fontScale) + "px";
+  $("themeName").textContent = t.name;
+  $("themeDesc").textContent = t.description || "";
+}
+
+function renderPresets() {
+  var host = $("presets");
+  host.innerHTML = "";
+  state.presets.forEach(function (p) {
+    var b = document.createElement("button");
+    b.className = "preset";
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(state.theme && state.theme.id === p.id));
+    var strip = document.createElement("div");
+    strip.className = "strip";
+    [p.colors.panel, p.colors.raised, p.colors.focus, p.colors.accent].forEach(function (c) {
+      var i = document.createElement("i");
+      i.style.background = rgba(c);
+      strip.appendChild(i);
+    });
+    var meta = document.createElement("div");
+    meta.className = "meta";
+    var name = document.createElement("b");
+    name.textContent = p.name;
+    var desc = document.createElement("span");
+    desc.textContent = p.mode === "opaque" ? "Opaque" : (p.mode === "acrylic" ? "Acrylic" : "Transparent");
+    meta.appendChild(name);
+    meta.appendChild(desc);
+    b.appendChild(strip);
+    b.appendChild(meta);
+    b.onclick = function () {
+      var copy = JSON.parse(JSON.stringify(p));
+      copy.opacity = state.theme ? state.theme.opacity : p.opacity;
+      state.theme = copy;
+      syncControls();
+      renderPresets();
+      refresh();
+    };
+    host.appendChild(b);
+  });
+}
+
+function renderColors() {
+  var host = $("colors");
+  host.innerHTML = "";
+  Object.keys(LABELS).forEach(function (key) {
+    var value = state.theme.colors[key];
+    var row = document.createElement("div");
+    row.className = "swatch";
+
+    var picker = document.createElement("input");
+    picker.type = "color";
+    picker.value = String(value).slice(0, 7);
+    picker.setAttribute("aria-label", LABELS[key]);
+
+    var info = document.createElement("div");
+    info.className = "info";
+
+    var nm = document.createElement("div");
+    nm.className = "nm";
+    nm.textContent = LABELS[key];
+
+    var hexEl = document.createElement("div");
+    hexEl.className = "hex";
+    hexEl.textContent = value;
+
+    var row2 = document.createElement("div");
+    row2.className = "row2";
+
+    var range = document.createElement("input");
+    range.type = "range";
+    range.min = "0";
+    range.max = "100";
+    range.step = "1";
+    range.value = String(Math.round(alphaHex(value) / 2.55));
+    range.setAttribute("aria-label", LABELS[key] + " alpha");
+
+    var pct = document.createElement("em");
+    pct.textContent = Math.round(alphaHex(value) / 2.55) + "%";
+
+    row2.appendChild(range);
+    row2.appendChild(pct);
+
+    info.appendChild(nm);
+    info.appendChild(hexEl);
+    info.appendChild(row2);
+
+    picker.oninput = function () {
+      state.theme.colors[key] = picker.value + String(value).slice(7);
+      hexEl.textContent = state.theme.colors[key];
+      refresh();
+    };
+
+    range.oninput = function () {
+      state.theme.colors[key] = withAlpha(state.theme.colors[key], Math.round(Number(range.value) * 2.55));
+      hexEl.textContent = state.theme.colors[key];
+      pct.textContent = range.value + "%";
+      refresh();
+    };
+
+    row.appendChild(picker);
+    row.appendChild(info);
+    host.appendChild(row);
+  });
+}
+
+function syncControls() {
+  var t = state.theme;
+  $("mode").value = t.mode;
+  $("opacity").value = String(Math.round(t.opacity * 100));
+  $("opacityVal").textContent = Math.round(t.opacity * 100) + "%";
+  $("acrylic").checked = !!t.acrylic;
+  $("density").value = t.layout.density;
+  $("radius").value = String(t.layout.borderRadius);
+  $("radiusVal").textContent = t.layout.borderRadius + "px";
+  $("fontScale").value = String(Math.round(t.layout.fontScale * 100));
+  $("fontVal").textContent = Math.round(t.layout.fontScale * 100) + "%";
+  $("customCss").value = t.layout.customCss || "";
+  $("opacity").disabled = t.mode === "opaque";
+}
+
+function readControls() {
+  var t = state.theme;
+  t.mode = $("mode").value;
+  t.opacity = Number($("opacity").value) / 100;
+  t.acrylic = $("acrylic").checked;
+  t.layout.density = $("density").value;
+  t.layout.borderRadius = Number($("radius").value);
+  t.layout.fontScale = Number($("fontScale").value) / 100;
+  t.layout.customCss = $("customCss").value;
+}
+
+var cssTimer = null;
+function refresh() {
+  setPreview();
+  clearTimeout(cssTimer);
+  cssTimer = setTimeout(function () {
+    post("/api/desktop/preview", state.theme).then(function (r) {
+      $("cssOut").textContent = r.css;
+    }).catch(function (e) {
+      $("cssOut").textContent = "CSS preview failed: " + e.message;
+    });
+  }, 140);
+}
+
+function renderState() {
+  var p = state.patch || {};
+  var pill = $("statePill");
+  var text = $("stateText");
+  var banner = $("banner");
+
+  if (!p.exists) {
+    pill.className = "state off";
+    text.textContent = "Desktop app not found";
+    banner.innerHTML = '<div class="step warn"><h3>OpenCode Desktop not detected</h3>' +
+      '<p>Install OpenCode Desktop, then reload this page.</p></div>';
+  } else if (p.patched) {
+    pill.className = "state on";
+    text.textContent = "Installed on OpenCode " + p.version;
+    banner.innerHTML = '<div class="step ok"><h3>Theme engine installed</h3>' +
+      '<p>Your theme loads every time OpenCode Desktop starts. Click <b>Install to OpenCode</b> to update colors, then restart the app.</p></div>';
+  } else {
+    pill.className = "state off";
+    text.textContent = "Not installed yet";
+    banner.innerHTML = '<div class="step"><h3>One install step</h3>' +
+      '<p>OpenCode Desktop only loads built in themes, so this writes a small loader into the app once.</p>' +
+      '<ol><li>Pick a preset and tune it here.</li>' +
+      '<li>Fully quit OpenCode Desktop.</li>' +
+      '<li>Click <b>Install to OpenCode</b>.</li>' +
+      '<li>Start OpenCode Desktop again.</li></ol></div>';
+  }
+}
+
+function setBusy(on) {
+  state.busy = on;
+  $("btnInstall").disabled = on;
+  $("btnRestore").disabled = on;
+  $("btnInstall").textContent = on ? "Working" : "Install to OpenCode";
+}
+
+function install() {
+  if (state.busy) return;
+  readControls();
+  setBusy(true);
+  post("/api/desktop/install", { confirm: true, theme: state.theme })
+    .then(function (r) {
+      toast("Installed. Backup saved as " + (r.backup ? r.backup.split("\\").pop() : "n/a") + ". Restart OpenCode Desktop to see it.", "ok");
+      return load();
+    })
+    .catch(function (e) {
+      if (/close/i.test(e.message)) {
+        toast("Quit OpenCode Desktop completely, then click Install again.", "warn");
+      } else {
+        toast(e.message, "err");
+      }
+    })
+    .finally(function () { setBusy(false); });
+}
+
+function restore() {
+  if (state.busy) return;
+  if (!confirm("Restore the original OpenCode Desktop app? Quit the app first.")) return;
+  setBusy(true);
+  post("/api/desktop/restore", { confirm: true })
+    .then(function (r) {
+      toast(r.restore.alreadyRestored ? "Already original, nothing to restore." : "Original app restored. Theme data kept.", "ok");
+      return load();
+    })
+    .catch(function (e) {
+      if (/close/i.test(e.message)) {
+        toast("Quit OpenCode Desktop completely, then try again.", "warn");
+      } else {
+        toast(e.message, "err");
+      }
+    })
+    .finally(function () { setBusy(false); });
+}
+
+function resetColors() {
+  if (!state.presets.length) return;
+  var match = state.presets.filter(function (p) { return p.id === state.theme.id; })[0] || state.presets[0];
+  var opacity = state.theme.opacity;
+  state.theme = JSON.parse(JSON.stringify(match));
+  state.theme.opacity = opacity;
+  syncControls();
+  renderColors();
+  renderPresets();
+  refresh();
+  toast("Colors reset to " + match.name + ".", "ok");
+}
+
+function load() {
+  return api("/api/desktop/state").then(function (s) {
+    state.presets = s.presets;
+    state.patch = s.patch;
+    state.theme = s.theme;
+    syncControls();
+    renderColors();
+    renderPresets();
+    renderState();
+    refresh();
+  }).catch(function (e) {
+    $("presets").innerHTML = "";
+    toast("Could not reach the local server: " + e.message, "err");
+  });
+}
+
+$("mode").onchange = function () { readControls(); syncControls(); refresh(); };
+$("density").onchange = function () { readControls(); refresh(); };
+$("opacity").oninput = function () {
+  readControls();
+  $("opacityVal").textContent = $("opacity").value + "%";
+  refresh();
+};
+$("acrylic").oninput = function () { readControls(); refresh(); };
+$("radius").oninput = function () {
+  readControls();
+  $("radiusVal").textContent = $("radius").value + "px";
+  refresh();
+};
+$("fontScale").oninput = function () {
+  readControls();
+  $("fontVal").textContent = $("fontScale").value + "%";
+  refresh();
+};
+$("customCss").oninput = function () { readControls(); refresh(); };
+$("btnInstall").onclick = install;
+$("btnRestore").onclick = restore;
+$("btnReset").onclick = resetColors;
+
+document.querySelectorAll("[data-tab]").forEach(function (btn) {
+  btn.onclick = function () {
+    document.querySelectorAll("[data-tab]").forEach(function (b) {
+      b.setAttribute("aria-selected", String(b === btn));
+    });
+    $("tab-preview").classList.toggle("hide", btn.dataset.tab !== "preview");
+    $("tab-css").classList.toggle("hide", btn.dataset.tab !== "css");
+  };
+});
+
+window.addEventListener("beforeunload", function (e) {
+  if (state.busy) { e.preventDefault(); e.returnValue = ""; }
+});
+
+load();
+</script>
+</body>
+</html>

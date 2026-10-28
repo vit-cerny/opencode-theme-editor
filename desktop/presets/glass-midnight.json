@@ -1,0 +1,27 @@
+{
+  "id": "glass-midnight",
+  "name": "Glass Midnight",
+  "description": "Deep indigo glass, soft periwinkle highlights, and generous rounded corners create a quiet late-night workspace.",
+  "mode": "transparent",
+  "colors": {
+    "--v2-background-bg-base": "rgba(6, 9, 20, 0.48)",
+    "--v2-background-surface-raised": "rgba(31, 35, 58, 0.82)",
+    "--v2-background-surface-base": "rgba(18, 22, 42, 0.70)",
+    "--v2-background-surface-sunken": "rgba(9, 13, 29, 0.60)",
+    "--v2-background-interactive-base": "rgba(99, 102, 241, 0.30)",
+    "--v2-text-text-base": "#DDE1F5",
+    "--v2-text-text-weak": "#9AA1C0",
+    "--v2-text-text-strong": "#F7F7FF",
+    "--v2-border-border-base": "rgba(165, 180, 252, 0.24)",
+    "--v2-border-border-weak": "rgba(165, 180, 252, 0.11)",
+    "--v2-border-focus": "#A5B4FC",
+    "--v2-icon-icon-base": "#C4C9E8",
+    "--v2-icon-icon-weak": "#858CAD"
+  },
+  "layout": {
+    "density": "comfortable",
+    "sidebarWidth": 272,
+    "borderRadius": 16,
+    "fontScale": 1
+  }
+}

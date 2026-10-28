@@ -1,0 +1,27 @@
+{
+  "id": "nord-bluish",
+  "name": "Nord Bluish",
+  "description": "Translucent slate panels and frosted cyan accents bring a calm Nordic palette to the desktop without hiding the wallpaper.",
+  "mode": "transparent",
+  "colors": {
+    "--v2-background-bg-base": "rgba(20, 27, 38, 0.46)",
+    "--v2-background-surface-raised": "rgba(59, 73, 92, 0.86)",
+    "--v2-background-surface-base": "rgba(39, 50, 65, 0.76)",
+    "--v2-background-surface-sunken": "rgba(25, 33, 45, 0.66)",
+    "--v2-background-interactive-base": "rgba(94, 129, 172, 0.34)",
+    "--v2-text-text-base": "#D8E1EC",
+    "--v2-text-text-weak": "#9BAEC2",
+    "--v2-text-text-strong": "#F2F6FB",
+    "--v2-border-border-base": "rgba(163, 184, 211, 0.26)",
+    "--v2-border-border-weak": "rgba(163, 184, 211, 0.13)",
+    "--v2-border-focus": "#88C0D0",
+    "--v2-icon-icon-base": "#B8CCE0",
+    "--v2-icon-icon-weak": "#7F96AC"
+  },
+  "layout": {
+    "density": "comfortable",
+    "sidebarWidth": 288,
+    "borderRadius": 12,
+    "fontScale": 1
+  }
+}

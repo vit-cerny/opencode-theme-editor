@@ -1,0 +1,10 @@
+{
+  "presets": [
+    "nord-bluish",
+    "glass-midnight",
+    "acrylic-ocean",
+    "charcoal",
+    "catppuccin-mocha",
+    "spring-light"
+  ]
+}

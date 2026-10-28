@@ -1,0 +1,27 @@
+{
+  "id": "catppuccin-mocha",
+  "name": "Catppuccin Mocha",
+  "description": "The familiar Mocha palette pairs warm dark surfaces with mauve accents for a soft, expressive purple workspace.",
+  "mode": "opaque",
+  "colors": {
+    "--v2-background-bg-base": "#1E1E2E",
+    "--v2-background-surface-raised": "#313244",
+    "--v2-background-surface-base": "#1E1E2E",
+    "--v2-background-surface-sunken": "#181825",
+    "--v2-background-interactive-base": "#45475A",
+    "--v2-text-text-base": "#CDD6F4",
+    "--v2-text-text-weak": "#A6ADC8",
+    "--v2-text-text-strong": "#F5E0DC",
+    "--v2-border-border-base": "#45475A",
+    "--v2-border-border-weak": "#313244",
+    "--v2-border-focus": "#CBA6F7",
+    "--v2-icon-icon-base": "#CBA6F7",
+    "--v2-icon-icon-weak": "#9399B2"
+  },
+  "layout": {
+    "density": "comfortable",
+    "sidebarWidth": 272,
+    "borderRadius": 12,
+    "fontScale": 1
+  }
+}

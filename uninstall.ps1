@@ -1,7 +1,9 @@
 # OpenCode Theme Editor - uninstaller (PowerShell 5.1, no admin required)
+param([switch]$KeepThemes)
 $ErrorActionPreference = 'Stop'
 
 $dest = Join-Path $env:LOCALAPPDATA 'opencode-theme-editor'
+$data = Join-Path $env:APPDATA 'opencode-theme-editor'
 $desktop = [Environment]::GetFolderPath('Desktop')
 $shortcutPath = Join-Path $desktop 'OpenCode Theme Editor.lnk'
 
@@ -26,4 +28,13 @@ if (Test-Path -LiteralPath $destFull) {
     Write-Host "Removed install folder: $destFull"
 } else {
     Write-Host "Install folder not found (nothing to remove): $destFull"
+}
+
+if ($KeepThemes) {
+    Write-Host "Kept desktop theme data: $data"
+} elseif (Test-Path -LiteralPath $data) {
+    Remove-Item -LiteralPath $data -Recurse -Force
+    Write-Host "Removed desktop theme data: $data"
+} else {
+    Write-Host "Desktop theme data not found (nothing to remove): $data"
 }

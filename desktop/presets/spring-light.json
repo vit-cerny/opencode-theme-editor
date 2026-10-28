@@ -1,0 +1,27 @@
+{
+  "id": "spring-light",
+  "name": "Spring Light",
+  "description": "Fresh off-white surfaces, leafy green accents, and soft borders create a bright theme suited to daylight work.",
+  "mode": "opaque",
+  "colors": {
+    "--v2-background-bg-base": "#F4F8F1",
+    "--v2-background-surface-raised": "#FFFFFF",
+    "--v2-background-surface-base": "#F8FBF6",
+    "--v2-background-surface-sunken": "#E7EFE3",
+    "--v2-background-interactive-base": "#DCEBD8",
+    "--v2-text-text-base": "#33443A",
+    "--v2-text-text-weak": "#687A6D",
+    "--v2-text-text-strong": "#17251C",
+    "--v2-border-border-base": "#C7D5C3",
+    "--v2-border-border-weak": "#DEE7DB",
+    "--v2-border-focus": "#4D9270",
+    "--v2-icon-icon-base": "#527563",
+    "--v2-icon-icon-weak": "#829789"
+  },
+  "layout": {
+    "density": "comfortable",
+    "sidebarWidth": 264,
+    "borderRadius": 12,
+    "fontScale": 1
+  }
+}

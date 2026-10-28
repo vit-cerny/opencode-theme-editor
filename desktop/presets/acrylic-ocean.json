@@ -1,0 +1,27 @@
+{
+  "id": "acrylic-ocean",
+  "name": "Acrylic Ocean",
+  "description": "Layered marine blues and luminous cyan controls evoke clear water, with acrylic depth that keeps content crisp.",
+  "mode": "acrylic",
+  "colors": {
+    "--v2-background-bg-base": "rgba(5, 31, 48, 0.64)",
+    "--v2-background-surface-raised": "rgba(18, 70, 94, 0.84)",
+    "--v2-background-surface-base": "rgba(10, 51, 72, 0.76)",
+    "--v2-background-surface-sunken": "rgba(5, 35, 53, 0.68)",
+    "--v2-background-interactive-base": "rgba(14, 165, 233, 0.32)",
+    "--v2-text-text-base": "#DCEFFA",
+    "--v2-text-text-weak": "#96BDCE",
+    "--v2-text-text-strong": "#F2FBFF",
+    "--v2-border-border-base": "rgba(119, 199, 229, 0.30)",
+    "--v2-border-border-weak": "rgba(119, 199, 229, 0.14)",
+    "--v2-border-focus": "#38BDF8",
+    "--v2-icon-icon-base": "#A8D9EC",
+    "--v2-icon-icon-weak": "#74A7BB"
+  },
+  "layout": {
+    "density": "comfortable",
+    "sidebarWidth": 280,
+    "borderRadius": 14,
+    "fontScale": 1
+  }
+}

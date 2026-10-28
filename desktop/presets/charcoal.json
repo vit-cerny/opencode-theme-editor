@@ -1,0 +1,27 @@
+{
+  "id": "charcoal",
+  "name": "Charcoal",
+  "description": "Neutral graphite surfaces, restrained contrast, and compact spacing make a focused theme with no color distractions.",
+  "mode": "opaque",
+  "colors": {
+    "--v2-background-bg-base": "#17181A",
+    "--v2-background-surface-raised": "#2B2D30",
+    "--v2-background-surface-base": "#222426",
+    "--v2-background-surface-sunken": "#1C1E20",
+    "--v2-background-interactive-base": "#3A3D42",
+    "--v2-text-text-base": "#D6D7D9",
+    "--v2-text-text-weak": "#92969C",
+    "--v2-text-text-strong": "#F5F5F6",
+    "--v2-border-border-base": "#45484D",
+    "--v2-border-border-weak": "#303237",
+    "--v2-border-focus": "#A3A8B3",
+    "--v2-icon-icon-base": "#C4C7CB",
+    "--v2-icon-icon-weak": "#85898F"
+  },
+  "layout": {
+    "density": "compact",
+    "sidebarWidth": 256,
+    "borderRadius": 8,
+    "fontScale": 0.95
+  }
+}

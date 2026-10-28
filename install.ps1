@@ -24,6 +24,9 @@ if (Test-Path (Join-Path $src 'index.html')) {
 if (Test-Path (Join-Path $src 'presets')) {
     Copy-Item -Path (Join-Path $src 'presets') -Destination $dest -Recurse -Force
 }
+if (Test-Path (Join-Path $src 'desktop')) {
+    Copy-Item -Path (Join-Path $src 'desktop') -Destination $dest -Recurse -Force
+}
 
 # 3. Write start.cmd into the install folder (CRLF, pure ASCII)
 $startCmd = "@echo off`r`nnode `"%~dp0server.js`" %*`r`n"
