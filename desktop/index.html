@@ -3,260 +3,322 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpenCode Desktop Theme Editor</title>
+<title>OpenCode Theme Studio</title>
 <style>
 :root{
   color-scheme:dark;
-  --bg:#0a0c10; --panel:#11141a; --elem:#171b23; --input:#1b2029;
-  --line:#252b36; --line-2:#333b49;
-  --fg:#e7ebf2; --fg-2:#9aa4b5; --fg-3:#6b7688;
-  --accent:#7dcfff; --ok:#7ee2a8; --warn:#e8c07d; --err:#f28b9b;
-  --r-panel:12px; --r-ctl:8px; --r-sm:6px;
+  --bg:#08090c;
+  --rail:#0e1014;
+  --panel:#12151b;
+  --elem:#191d25;
+  --input:#1d222b;
+  --line:#242a34;
+  --line2:#333a47;
+  --fg:#e8ecf3;
+  --fg2:#98a2b3;
+  --fg3:#6a7484;
+  --accent:#7dcfff;
+  --ok:#7ee2a8;
+  --warn:#e8c07d;
+  --err:#f28b9b;
+  --r:12px;
+  --r2:8px;
+  --r3:6px;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{
-  background:var(--bg); color:var(--fg);
+  background:var(--bg);color:var(--fg);
   font:13px/1.55 ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
-  display:flex; flex-direction:column; overflow:hidden;
+  display:flex;flex-direction:column;overflow:hidden;
   -webkit-font-smoothing:antialiased;
 }
 button,input,select,textarea{font:inherit;color:inherit}
 button{
-  background:var(--elem); border:1px solid var(--line); border-radius:var(--r-ctl);
-  padding:8px 13px; cursor:pointer; transition:border-color .12s, background .12s;
+  background:var(--elem);border:1px solid var(--line);border-radius:var(--r2);
+  padding:8px 13px;cursor:pointer;
+  transition:border-color .12s ease,background .12s ease;
 }
-button:hover:not(:disabled){border-color:var(--line-2); background:#1d222c}
+button:hover:not(:disabled){border-color:var(--line2);background:#212733}
 button:active:not(:disabled){transform:translateY(1px)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 button:disabled{opacity:.45;cursor:default}
-button.primary{background:var(--accent); border-color:var(--accent); color:#08222e; font-weight:650}
-button.primary:hover:not(:disabled){background:#95d9ff; border-color:#95d9ff}
+button.primary{background:var(--accent);border-color:var(--accent);color:#06202b;font-weight:650}
+button.primary:hover:not(:disabled){background:#9adcff;border-color:#9adcff}
 button.ghost{background:transparent}
 button.danger{color:var(--err)}
-button.danger:hover:not(:disabled){border-color:var(--err)}
+button.danger:hover:not(:disabled){border-color:var(--err);background:#2a171b}
 input[type=text],select,textarea{
-  background:var(--input); border:1px solid var(--line); border-radius:var(--r-ctl);
-  padding:7px 10px; outline:none;
+  background:var(--input);border:1px solid var(--line);border-radius:var(--r2);
+  padding:7px 10px;outline:none;
 }
 input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent)}
-input[type=range]{accent-color:var(--accent); width:100%}
+input[type=range]{accent-color:var(--accent);width:100%;height:16px}
 input[type=color]{
-  width:38px;height:26px;padding:0;border:1px solid var(--line);border-radius:var(--r-sm);
-  background:none;cursor:pointer
+  width:38px;height:26px;padding:0;border:1px solid var(--line);border-radius:var(--r3);
+  background:none;cursor:pointer;
 }
-input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
 
 .top{
-  display:flex;align-items:center;gap:12px;padding:12px 18px;
-  background:var(--panel);border-bottom:1px solid var(--line);flex:0 0 auto;
+  display:flex;align-items:center;gap:12px;padding:11px 18px;
+  background:var(--rail);border-bottom:1px solid var(--line);flex:0 0 auto;
 }
 .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.01em}
-.brand .mark{
+.mark{
   width:22px;height:22px;border-radius:6px;display:grid;place-items:center;
-  background:linear-gradient(150deg,#7dcfff,#3f7fa8);color:#06202b;font-size:12px;font-weight:800;
+  background:linear-gradient(150deg,#7dcfff,#3f7fa8);color:#06202b;
+  font-size:11px;font-weight:800;
 }
-.brand small{color:var(--fg-3);font-weight:500;letter-spacing:0}
+.brand small{color:var(--fg3);font-weight:500}
 .grow{flex:1}
-.state{
-  display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--fg-2);
+.pill{
+  display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--fg2);
   background:var(--elem);border:1px solid var(--line);border-radius:99px;padding:5px 12px;
 }
-.state .dot{width:7px;height:7px;border-radius:50%;background:var(--fg-3)}
-.state.on .dot{background:var(--ok)}
-.state.off .dot{background:var(--warn)}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--fg3)}
+.pill.on .dot{background:var(--ok)}
+.pill.warn .dot{background:var(--warn)}
 
-.wrap{flex:1;display:grid;grid-template-columns:392px minmax(500px,1fr);overflow:hidden}
+.wrap{flex:1;display:grid;grid-template-columns:372px minmax(0,1fr);overflow:hidden}
 .rail{
-  border-right:1px solid var(--line);overflow-y:auto;padding:16px 16px 40px;
-  background:var(--panel);
+  border-right:1px solid var(--line);overflow-y:auto;padding:16px;
+  background:var(--rail);
 }
-.stage{padding:18px;overflow-y:auto;min-width:0}
-.rail::-webkit-scrollbar,.stage::-webkit-scrollbar,.panel-body::-webkit-scrollbar{width:10px}
-.rail::-webkit-scrollbar-thumb,.stage::-webkit-scrollbar-thumb,.panel-body::-webkit-scrollbar-thumb{
-  background:#2b323d;border-radius:8px;border:3px solid var(--panel)
+.stage{padding:0;overflow-y:auto;min-width:0;display:flex;flex-direction:column}
+
+.rail::-webkit-scrollbar,.stage::-webkit-scrollbar{width:10px}
+.rail::-webkit-scrollbar-thumb,.stage::-webkit-scrollbar-thumb{
+  background:#2a313d;border-radius:8px;border:3px solid var(--rail);
 }
+.rail::-webkit-scrollbar-track,.stage::-webkit-scrollbar-track{background:transparent}
 
 h2.sec{
   margin:0 0 10px;font-size:11px;font-weight:650;letter-spacing:.09em;
-  text-transform:uppercase;color:var(--fg-3);
+  text-transform:uppercase;color:var(--fg3);
 }
-.sec-block{margin-bottom:22px}
-.sec-block:last-child{margin-bottom:0}
+.blk{margin-bottom:22px}
+.blk:last-child{margin-bottom:0}
 
-.presets{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .preset{
-  text-align:left;padding:0;overflow:hidden;border-radius:var(--r-panel);
-  border:1px solid var(--line);background:var(--elem);cursor:pointer;
+  text-align:left;padding:0;overflow:hidden;border-radius:var(--r);
+  border:1px solid var(--line);background:var(--elem);
 }
-.preset:hover{border-color:var(--line-2)}
+.preset:hover{border-color:var(--line2)}
 .preset[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-.preset .strip{display:flex;height:34px}
+.preset .strip{display:flex;height:30px}
 .preset .strip i{flex:1}
-.preset .meta{padding:8px 10px 10px}
-.preset .meta b{display:block;font-size:12px;font-weight:600}
-.preset .meta span{display:block;font-size:11px;color:var(--fg-3);line-height:1.35;margin-top:2px}
+.preset .meta{padding:7px 9px 9px}
+.preset .meta b{display:block;font-size:11.5px;font-weight:600;line-height:1.3}
+.preset .meta span{display:block;font-size:10.5px;color:var(--fg3);margin-top:2px}
 
-.ctl{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;margin-bottom:10px}
-.ctl label{color:var(--fg-2);font-size:12px}
-.ctl .val{color:var(--fg-3);font-size:11px;font-variant-numeric:tabular-nums}
+.ctl{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;margin-bottom:11px}
+.ctl label{color:var(--fg2);font-size:12px}
+.ctl .val{color:var(--fg3);font-size:11px;font-variant-numeric:tabular-nums}
 .ctl.full{grid-template-columns:1fr}
 .ctl.full input[type=range]{grid-column:1/-1}
+.ctl.full label{display:flex;justify-content:space-between;align-items:baseline}
 
-.swatch{display:grid;grid-template-columns:38px 1fr;gap:9px;align-items:center;
-  padding:7px;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--elem);margin-bottom:6px}
-.swatch .info{min-width:0}
-.swatch .nm{font-size:11.5px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.swatch .hex{font-size:10.5px;color:var(--fg-3);font-family:ui-monospace,Consolas,monospace}
-.swatch .row2{display:flex;align-items:center;gap:8px;margin-top:4px}
-.swatch .row2 input[type=range]{flex:1;height:14px}
-.swatch .row2 em{font-style:normal;font-size:10px;color:var(--fg-3);width:30px;text-align:right;font-variant-numeric:tabular-nums}
-
-.tabs{display:flex;gap:4px;margin-bottom:14px}
-.tabs button{padding:6px 13px;font-size:12px;border-radius:var(--r-ctl)}
-.tabs button[aria-selected=true]{background:var(--elem);border-color:var(--accent);color:var(--accent)}
-
-.step{
-  border:1px solid var(--line);border-radius:var(--r-panel);padding:13px 15px;
-  background:linear-gradient(180deg,#141922,#11141a);margin-bottom:14px;
+.swatch{
+  display:grid;grid-template-columns:38px 1fr;gap:9px;align-items:center;
+  padding:7px;border:1px solid var(--line);border-radius:var(--r2);
+  background:var(--elem);margin-bottom:6px;
 }
-.step h3{margin:0 0 5px;font-size:13px}
-.step p{margin:0;color:var(--fg-2);font-size:12px;line-height:1.5}
-.step ol{margin:8px 0 0;padding-left:18px;color:var(--fg-2);font-size:12px;line-height:1.7}
-.step code{background:#0c1016;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11px}
-.step.ok{border-color:#2a5b43;background:linear-gradient(180deg,#0f2018,#11141a)}
-.step.warn{border-color:#5c4a28;background:linear-gradient(180deg,#1f1a10,#11141a)}
+.swatch .nm{font-size:11.5px}
+.swatch .hex{font-size:10.5px;color:var(--fg3);font-family:ui-monospace,Consolas,monospace}
+.swatch .row2{display:flex;align-items:center;gap:8px;margin-top:3px}
+.swatch .row2 input[type=range]{flex:1}
+.swatch .row2 em{font-style:normal;font-size:10px;color:var(--fg3);width:32px;text-align:right;font-variant-numeric:tabular-nums}
 
-.panel-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.panel-head h1{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
-.panel-head .hint{color:var(--fg-3);font-size:12px}
-.panel-body{
-  border:1px solid var(--line);border-radius:var(--r-panel);overflow:hidden;background:#0d1015;
+.viewbar{
+  display:flex;align-items:center;gap:10px;padding:11px 18px;
+  border-bottom:1px solid var(--line);background:var(--rail);flex:0 0 auto;
+}
+.viewbar .title{font-size:14px;font-weight:650;letter-spacing:-.01em}
+.viewbar .desc{font-size:11.5px;color:var(--fg3);flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg{display:flex;gap:2px;background:var(--elem);border:1px solid var(--line);border-radius:var(--r2);padding:2px}
+.seg button{
+  border:0;background:transparent;padding:4px 10px;font-size:11.5px;border-radius:var(--r3);
+  color:var(--fg2);
+}
+.seg button[aria-pressed=true]{background:var(--input);color:var(--fg)}
+.seg button:hover{color:var(--fg)}
+
+.stagebody{flex:1;min-height:0;display:flex;flex-direction:column}
+
+.wall{
+  flex:1;min-height:420px;position:relative;overflow:hidden;
+  padding:26px;display:grid;place-items:stretch;
+  background:
+    radial-gradient(900px 460px at 12% -8%,#25415a 0,transparent 62%),
+    radial-gradient(760px 420px at 88% 108%,#2c2340 0,transparent 58%),
+    linear-gradient(160deg,#16202c 0,#0e141c 55%,#111a24 100%);
+}
+.wall::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.45;
+  background-image:linear-gradient(90deg,#2a3a4c 1px,transparent 1px),
+    linear-gradient(#2a3a4c 1px,transparent 1px);
+  background-size:38px 38px;
+}
+.wall.checker::after{
+  opacity:.6;
+  background-image:
+    linear-gradient(45deg,#2b3440 25%,transparent 25%),
+    linear-gradient(-45deg,#2b3440 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#2b3440 75%),
+    linear-gradient(-45deg,transparent 75%,#2b3440 75%);
+  background-size:24px 24px;
+  background-position:0 0,0 12px,12px -12px,-12px 0;
 }
 
-.frame{padding:22px;background:
-  radial-gradient(1100px 500px at 15% -10%,#1a2a38 0,transparent 60%),
-  radial-gradient(800px 400px at 85% 110%,#1b2436 0,transparent 55%),
-  #0d1015;position:relative}
-.frame::before{
-  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
-  background-image:linear-gradient(90deg,#1f2d3d 1px,transparent 1px),
-    linear-gradient(#1f2d3d 1px,transparent 1px);
-  background-size:34px 34px;
-}
 .win{
-  border-radius:12px;overflow:hidden;border:1px solid var(--t-line,#333);
-  box-shadow:0 26px 70px rgba(0,0,0,.55);
-  background:var(--t-bg,#111);color:var(--t-fg,#eee);
-  display:flex;flex-direction:column;min-height:430px;
+  position:relative;z-index:1;display:flex;flex-direction:column;
+  border-radius:12px;overflow:hidden;min-height:392px;
+  border:1px solid var(--t-line);
+  box-shadow:0 28px 74px rgba(0,0,0,.6);
+  background:var(--t-root);
+  color:var(--t-fg);
 }
-.win .title{
-  display:flex;align-items:center;gap:9px;padding:0 12px;height:38px;
-  background:var(--t-panel,#1a1a1a);border-bottom:1px solid var(--t-line,#333);flex:0 0 auto;
+.win .bar{
+  display:flex;align-items:center;gap:9px;padding:0 12px;height:36px;
+  background:var(--t-panel);border-bottom:1px solid var(--t-line);
+  backdrop-filter:var(--t-filter,none);
+  -webkit-backdrop-filter:var(--t-filter,none);
+  flex:0 0 auto;
 }
-.win .lights{display:flex;gap:6px}
-.win .lights i{width:10px;height:10px;border-radius:50%;background:var(--t-line,#444)}
-.win .tabs-bar{display:flex;gap:5px;margin-left:10px;font-size:11px;overflow:hidden}
-.win .tabs-bar span{
-  padding:4px 10px;border-radius:6px 6px 0 0;background:transparent;
-  color:var(--t-muted,#888);white-space:nowrap;
+.lights{display:flex;gap:6px}
+.lights i{width:10px;height:10px;border-radius:50%;background:var(--t-line)}
+.win .tabs{display:flex;gap:4px;margin-left:8px;overflow:hidden}
+.win .tabs span{
+  padding:4px 10px;border-radius:6px 6px 0 0;font-size:11px;
+  color:var(--t-muted);white-space:nowrap;
 }
-.win .tabs-bar span.act{background:var(--t-raised,#242424);color:var(--t-fg,#eee)}
-.win .body{display:grid;grid-template-columns:186px 1fr;flex:1;min-height:0}
+.win .tabs span.act{background:var(--t-raised);color:var(--t-fg)}
+.win .body{display:grid;grid-template-columns:182px 1fr;flex:1;min-height:0}
 .win .side{
-  background:var(--t-panel,#1a1a1a);border-right:1px solid var(--t-line,#333);
+  background:var(--t-panel);border-right:1px solid var(--t-line);
   padding:10px 8px;display:flex;flex-direction:column;gap:2px;
+  backdrop-filter:var(--t-filter,none);
+  -webkit-backdrop-filter:var(--t-filter,none);
 }
-.win .side .hd{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;
-  color:var(--t-muted,#777);padding:4px 7px 7px}
-.win .side .it{padding:5px 8px;border-radius:6px;font-size:11.5px;color:var(--t-muted,#999);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.win .side .it.act{background:var(--t-sel,#2a3340);color:var(--t-fg,#eee)}
-.win .main{padding:20px 22px;display:flex;flex-direction:column;gap:14px;min-width:0}
-.win .main h4{margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--t-fg,#eee)}
-.win .main .sub{font-size:11.5px;color:var(--t-muted,#888);margin:0}
-.win .cards{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.win .side .hd{
+  font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--t-muted);padding:4px 6px 7px;
+}
+.win .side .it{
+  padding:5px 8px;border-radius:6px;font-size:11.5px;color:var(--t-muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.win .side .it.act{background:var(--t-sel);color:var(--t-fg)}
+.win .main{padding:20px 22px;display:flex;flex-direction:column;gap:13px;min-width:0}
+.win .main h4{margin:0;font-size:18px;font-weight:600;letter-spacing:-.01em;color:var(--t-fg)}
+.win .main .sub{margin:0;font-size:11.5px;color:var(--t-muted)}
+.win .cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .win .cards .c{
-  border:1px solid var(--t-line,#333);border-radius:9px;padding:11px 12px;
-  background:var(--t-raised,#1e1e1e);
+  border:1px solid var(--t-line);border-radius:9px;padding:10px 11px;
+  background:var(--t-raised);
+  backdrop-filter:var(--t-filter,none);
+  -webkit-backdrop-filter:var(--t-filter,none);
 }
-.win .cards .c b{display:block;font-size:11.5px;font-weight:600;color:var(--t-fg,#eee);margin-bottom:2px}
-.win .cards .c span{font-size:10.5px;color:var(--t-muted,#888);line-height:1.4}
+.win .cards .c b{display:block;font-size:11.5px;font-weight:600;margin-bottom:1px;color:var(--t-fg)}
+.win .cards .c span{font-size:10.5px;color:var(--t-muted);line-height:1.4}
 .win .composer{
-  margin-top:auto;border:1px solid var(--t-line,#333);border-radius:10px;
-  padding:10px 12px;background:var(--t-raised,#1e1e1e);
-  display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--t-muted,#888);
+  margin-top:auto;border:1px solid var(--t-line);border-radius:10px;
+  padding:9px 11px;background:var(--t-raised);
+  display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--t-muted);
+  backdrop-filter:var(--t-filter,none);
+  -webkit-backdrop-filter:var(--t-filter,none);
 }
-.win .composer .pill{
-  border:1px solid var(--t-line,#333);border-radius:99px;padding:2px 9px;font-size:10.5px;
-}
-.win .composer .send{
-  margin-left:auto;width:26px;height:26px;border-radius:50%;
-  background:var(--t-accent,#7dcfff);color:#07131a;display:grid;place-items:center;font-weight:800;font-size:12px;
+.chip{border:1px solid var(--t-line);border-radius:99px;padding:2px 9px;font-size:10.5px}
+.send{
+  margin-left:auto;width:25px;height:25px;border-radius:50%;
+  background:var(--t-accent);color:#07131a;
+  display:grid;place-items:center;font-weight:800;font-size:12px;
 }
 
+.stagefoot{
+  display:flex;align-items:center;gap:10px;padding:9px 18px;
+  border-top:1px solid var(--line);background:var(--rail);flex:0 0 auto;
+  font-size:11.5px;color:var(--fg3);
+}
+.stagefoot .mono{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--fg2)}
+
+.cssview{padding:16px 18px;flex:1;min-height:0;display:flex;flex-direction:column}
 pre.css{
-  margin:0;padding:16px 18px;font:11.5px/1.65 ui-monospace,Consolas,monospace;
-  color:#c9d4e3;max-height:520px;overflow:auto;white-space:pre;
+  margin:0;padding:14px 16px;flex:1;overflow:auto;
+  font:11.5px/1.65 ui-monospace,Consolas,monospace;color:#c6d2e2;
+  background:#0b0e13;border:1px solid var(--line);border-radius:var(--r2);
+  white-space:pre;
 }
 
-.toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:9px;z-index:80;max-width:430px}
+.banner{margin:0;padding:0}
+.note{
+  display:flex;gap:10px;align-items:flex-start;
+  border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:var(--r2);padding:11px 13px;margin:14px 18px 0;
+  background:#10141b;font-size:12px;color:var(--fg2);line-height:1.5;
+}
+.note.ok{border-left-color:var(--ok)}
+.note.warn{border-left-color:var(--warn)}
+.note b{color:var(--fg);font-weight:600}
+.note ol{margin:6px 0 0;padding-left:18px}
+.note li{margin:2px 0}
+
+.toasts{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:80;max-width:420px}
 .toast{
-  border:1px solid var(--line-2);border-left:3px solid var(--accent);border-radius:var(--r-ctl);
+  border:1px solid var(--line2);border-left:3px solid var(--accent);border-radius:var(--r2);
   background:#151a23;padding:10px 13px;font-size:12px;line-height:1.5;
-  box-shadow:0 10px 34px rgba(0,0,0,.5); word-break:break-word;
-  animation:in .16s ease-out;
+  box-shadow:0 10px 34px rgba(0,0,0,.5);word-break:break-word;
 }
 .toast.ok{border-left-color:var(--ok)}
 .toast.err{border-left-color:var(--err)}
 .toast.warn{border-left-color:var(--warn)}
-@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-.skel{height:34px;border-radius:8px;background:linear-gradient(90deg,#161b23,#1e2531,#161b23);
+.skel{height:30px;border-radius:8px;background:linear-gradient(90deg,#141922,#1b2230,#141922);
   background-size:200% 100%;animation:sh 1.1s linear infinite}
 @keyframes sh{to{background-position:-200% 0}}
-
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
 .hide{display:none!important}
-.muted{color:var(--fg-3);font-size:11.5px;line-height:1.55}
+.muted{color:var(--fg3);font-size:11.5px;line-height:1.55;margin:0}
 .row{display:flex;gap:8px;align-items:center}
-@media (max-width:1080px){
+
+@media (max-width:1040px){
   .wrap{grid-template-columns:1fr}
-  .rail{border-right:0;border-bottom:1px solid var(--line);max-height:46vh}
-  .win .body{grid-template-columns:130px 1fr}
+  .rail{border-right:0;border-bottom:1px solid var(--line);max-height:44vh}
+  .win .body{grid-template-columns:128px 1fr}
+  .wall{padding:14px;min-height:340px}
 }
 </style>
 </head>
 <body>
 
 <header class="top">
-  <div class="brand">
-    <span class="mark">OC</span>
-    <span>Theme Editor <small>OpenCode Desktop</small></span>
-  </div>
-  <span class="state off" id="statePill"><span class="dot"></span><span id="stateText">Checking</span></span>
+  <div class="brand"><span class="mark">OC</span><span>Theme Studio <small>OpenCode Desktop</small></span></div>
+  <span class="pill warn" id="statePill"><span class="dot"></span><span id="stateText">Checking</span></span>
   <span class="grow"></span>
   <button class="ghost" id="btnReset">Reset colors</button>
-  <button id="btnRestore" class="danger">Restore original</button>
+  <button class="danger" id="btnRestore">Restore original</button>
   <button class="primary" id="btnInstall">Install to OpenCode</button>
 </header>
 
 <div class="wrap">
   <aside class="rail">
-    <div class="sec-block">
-      <h2 class="sec">Preset shop</h2>
-      <div class="presets" id="presets">
-        <div class="skel"></div><div class="skel"></div>
-        <div class="skel"></div><div class="skel"></div>
-      </div>
+    <div class="blk">
+      <h2 class="sec">Presets</h2>
+      <div class="presets" id="presets"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
     </div>
 
-    <div class="sec-block">
-      <h2 class="sec">Window</h2>
+    <div class="blk">
+      <h2 class="sec">Background</h2>
       <div class="ctl">
-        <label for="mode">Background mode</label>
+        <label for="mode">Mode</label>
         <select id="mode">
           <option value="transparent">Transparent</option>
-          <option value="acrylic">Acrylic blur</option>
+          <option value="acrylic">Acrylic</option>
           <option value="opaque">Opaque</option>
         </select>
       </div>
@@ -264,137 +326,129 @@ pre.css{
         <label for="opacity">Window opacity <span class="val" id="opacityVal">100%</span></label>
         <input type="range" id="opacity" min="30" max="100" step="1" value="100">
       </div>
-      <div class="ctl">
-        <label for="acrylic">Acrylic blur (Windows 11)</label>
-        <input type="checkbox" id="acrylic">
-      </div>
-      <p class="muted" id="modeNote">Transparent shows your wallpaper sharp. Acrylic adds a gaussian blur behind the window.</p>
-      <div class="row" style="margin-top:8px">
-        <button id="btnBlur" style="flex:1">Make background blurred</button>
-      </div>
 
-      <div class="sec-block" style="margin-top:20px;margin-bottom:0">
-        <h2 class="sec">Blur</h2>
-        <div class="ctl">
-          <label for="blurMode">Blur type</label>
-          <select id="blurMode">
-            <option value="none">None (sharp)</option>
-            <option value="acrylic">Acrylic</option>
-            <option value="mica">Mica</option>
-            <option value="gaussian">Gaussian (CSS)</option>
-          </select>
-        </div>
-        <div class="ctl full">
-          <label for="blurRadius">Blur radius <span class="val" id="blurRadiusVal">18px</span></label>
-          <input type="range" id="blurRadius" min="0" max="64" step="1" value="18">
-        </div>
-        <div class="ctl full">
-          <label for="blurScrim">Scrim strength <span class="val" id="blurScrimVal">35%</span></label>
-          <input type="range" id="blurScrim" min="0" max="90" step="1" value="35">
-        </div>
-        <div class="ctl full">
-          <label for="blurSaturation">Saturation <span class="val" id="blurSatVal">140%</span></label>
-          <input type="range" id="blurSaturation" min="100" max="200" step="5" value="140">
-        </div>
-        <div class="ctl">
-          <label for="blurPanels">Frost panels too</label>
-          <input type="checkbox" id="blurPanels" checked>
-        </div>
-      </div>
-    </div>
-
-    <div class="sec-block">
-      <h2 class="sec">Layout</h2>
       <div class="ctl">
-        <label for="density">Density</label>
-        <select id="density">
-          <option value="comfortable">Comfortable</option>
-          <option value="compact">Compact</option>
+        <label for="blurMode">Blur</label>
+        <select id="blurMode">
+          <option value="none">None</option>
+          <option value="acrylic">Acrylic</option>
+          <option value="mica">Mica</option>
+          <option value="gaussian">Gaussian</option>
         </select>
       </div>
       <div class="ctl full">
-        <label for="radius">Corner radius <span class="val" id="radiusVal">12px</span></label>
+        <label for="blurRadius">Radius <span class="val" id="blurRadiusVal">18px</span></label>
+        <input type="range" id="blurRadius" min="0" max="64" step="1" value="18">
+      </div>
+      <div class="ctl full">
+        <label for="blurScrim">Scrim <span class="val" id="blurScrimVal">35%</span></label>
+        <input type="range" id="blurScrim" min="0" max="90" step="1" value="35">
+      </div>
+      <div class="ctl full">
+        <label for="blurSaturation">Saturation <span class="val" id="blurSatVal">140%</span></label>
+        <input type="range" id="blurSaturation" min="100" max="200" step="5" value="140">
+      </div>
+      <div class="ctl">
+        <label for="blurPanels">Frost panels</label>
+        <input type="checkbox" id="blurPanels" checked>
+      </div>
+      <div class="row"><button id="btnBlur" style="flex:1">Apply blur to OpenCode</button></div>
+    </div>
+
+    <div class="blk">
+      <h2 class="sec">Layout</h2>
+      <div class="ctl">
+        <label for="density">Density</label>
+        <select id="density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select>
+      </div>
+      <div class="ctl full">
+        <label for="radius">Corners <span class="val" id="radiusVal">12px</span></label>
         <input type="range" id="radius" min="0" max="24" step="1" value="12">
       </div>
       <div class="ctl full">
-        <label for="fontScale">Font scale <span class="val" id="fontVal">100%</span></label>
+        <label for="fontScale">Font <span class="val" id="fontVal">100%</span></label>
         <input type="range" id="fontScale" min="85" max="125" step="1" value="100">
       </div>
     </div>
 
-    <div class="sec-block">
+    <div class="blk">
       <h2 class="sec">Colors</h2>
       <div id="colors"></div>
     </div>
 
-    <div class="sec-block">
+    <div class="blk">
       <h2 class="sec">Custom CSS</h2>
-      <div class="ctl full">
-        <textarea id="customCss" rows="5" placeholder="Extra CSS appended after the generated theme"></textarea>
-      </div>
+      <div class="ctl full"><textarea id="customCss" rows="4" placeholder="Appended after the generated theme"></textarea></div>
     </div>
   </aside>
 
   <section class="stage">
-    <div id="banner"></div>
-
-    <div class="tabs" role="tablist">
-      <button role="tab" aria-selected="true" data-tab="preview">Preview</button>
-      <button role="tab" aria-selected="false" data-tab="css">Generated CSS</button>
+    <div class="viewbar">
+      <span class="title" id="themeName">Theme</span>
+      <span class="desc" id="themeDesc"></span>
+      <div class="seg">
+        <button data-view="both" aria-pressed="true">Both</button>
+        <button data-view="wall" aria-pressed="false">Wallpaper</button>
+        <button data-view="checker" aria-pressed="false">Alpha</button>
+        <button data-view="css" aria-pressed="false">CSS</button>
+      </div>
     </div>
 
-    <div id="tab-preview">
-      <div class="panel-head">
-        <h1 id="themeName">Nord Bluish</h1>
-        <span class="hint" id="themeDesc"></span>
-      </div>
-      <div class="panel-body">
-        <div class="frame">
-          <div class="win" id="win">
-            <div class="title">
-              <div class="lights"><i></i><i></i><i></i></div>
-              <div class="tabs-bar">
-                <span class="act">New session - 2026-10-28</span>
-                <span>New session - 2026-10-27</span>
-              </div>
+    <div id="banner" class="banner"></div>
+
+    <div class="stagebody" id="view-preview">
+      <div class="wall" id="wall">
+        <div class="win" id="win">
+          <div class="bar">
+            <div class="lights"><i></i><i></i><i></i></div>
+            <div class="tabs">
+              <span class="act">New session</span>
+              <span>Theme work</span>
             </div>
-            <div class="body">
-              <div class="side">
-                <div class="hd">Sessions</div>
-                <div class="it act">Picked a glass theme</div>
-                <div class="it">Desktop appearance</div>
-                <div class="it">Review changes</div>
-                <div class="it">Fix the parser</div>
-                <div class="it">Write tests</div>
+          </div>
+          <div class="body">
+            <div class="side">
+              <div class="hd">Sessions</div>
+              <div class="it act">Desktop theme</div>
+              <div class="it">Blur tuning</div>
+              <div class="it">Review changes</div>
+              <div class="it">Write tests</div>
+            </div>
+            <div class="main">
+              <h4>What should we build?</h4>
+              <p class="sub">Pick a preset, tune the blur, install.</p>
+              <div class="cards">
+                <div class="c"><b>Explore code</b><span>Understand a module</span></div>
+                <div class="c"><b>Build a feature</b><span>Ship an app or tool</span></div>
+                <div class="c"><b>Review changes</b><span>Read a diff, suggest fixes</span></div>
+                <div class="c"><b>Fix a failure</b><span>Trace an error to its cause</span></div>
               </div>
-              <div class="main">
-                <h4>What should we build in opencode?</h4>
-                <p class="sub">Ask anything, or pick a starting point.</p>
-                <div class="cards">
-                  <div class="c"><b>Explore code</b><span>Understand how a module works</span></div>
-                  <div class="c"><b>Build a feature</b><span>Ship a new app or tool</span></div>
-                  <div class="c"><b>Review changes</b><span>Read a diff and suggest fixes</span></div>
-                  <div class="c"><b>Fix a failure</b><span>Trace an error to its cause</span></div>
-                </div>
-                <div class="composer">
-                  <span>Ask anything</span>
-                  <span class="pill">Local</span>
-                  <span class="pill">master</span>
-                  <span class="send">&#8593;</span>
-                </div>
+              <div class="composer">
+                <span>Ask anything</span>
+                <span class="chip">Local</span>
+                <span class="chip">master</span>
+                <span class="send">&#8593;</span>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="stagefoot">
+        <span class="mono" id="blurSummary">blur 18px</span>
+        <span class="grow"></span>
+        <span id="cssSize">css</span>
+      </div>
     </div>
 
-    <div id="tab-css" class="hide">
-      <div class="panel-head">
-        <h1>Generated CSS</h1>
-        <span class="hint">Written to %APPDATA%\opencode-theme-editor\desktop.css</span>
+    <div class="stagebody hide" id="view-css">
+      <div class="cssview">
+        <pre class="css" id="cssOut">Generating</pre>
       </div>
-      <div class="panel-body"><pre class="css" id="cssOut">Generating</pre></div>
+      <div class="stagefoot">
+        <button id="copyCss">Copy CSS</button>
+        <span class="grow"></span>
+        <span id="cssMeta">%APPDATA%\opencode-theme-editor\desktop.css</span>
+      </div>
     </div>
   </section>
 </div>
@@ -406,7 +460,7 @@ pre.css{
 
 var LABELS = {
   background: "App background",
-  panel: "Sidebar / panels",
+  panel: "Sidebar and panels",
   raised: "Raised cards",
   sunken: "Sunken areas",
   interactive: "Selected row",
@@ -415,14 +469,14 @@ var LABELS = {
   strong: "Strong text",
   border: "Borders",
   subtle: "Subtle borders",
-  focus: "Accent / focus",
+  focus: "Accent",
   accent: "Icons",
   success: "Success",
   warning: "Warning",
   error: "Error"
 };
 
-var state = { theme: null, presets: [], patch: null, busy: false };
+var state = { theme: null, presets: [], patch: null, busy: false, view: "both" };
 
 function $(id) { return document.getElementById(id); }
 
@@ -436,11 +490,7 @@ function api(path, opts) {
 }
 
 function post(path, body) {
-  return api(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
+  return api(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 }
 
 function toast(msg, kind) {
@@ -451,12 +501,17 @@ function toast(msg, kind) {
   host.appendChild(el);
   setTimeout(function () {
     el.style.opacity = "0";
-    el.style.transition = "opacity .2s";
+    el.style.transition = "opacity .2s ease";
     setTimeout(function () { el.remove(); }, 220);
   }, kind === "err" ? 11000 : 6000);
 }
 
-function hexToRgb(hex) {
+function blurBlock(t) {
+  if (!t.blur) t.blur = { mode: "acrylic", radius: 18, panels: true, scrim: 35, saturation: 140 };
+  return t.blur;
+}
+
+function hexParts(hex) {
   var v = String(hex || "#000000").replace("#", "");
   if (v.length === 6) v += "ff";
   return {
@@ -468,23 +523,32 @@ function hexToRgb(hex) {
 }
 
 function rgba(hex) {
-  var c = hexToRgb(hex);
+  var c = hexParts(hex);
   return "rgba(" + c.r + "," + c.g + "," + c.b + "," + (Math.round(c.a * 1000) / 1000) + ")";
 }
 
-function alphaHex(hex) {
-  return parseInt(String(hex).slice(7, 9), 16);
-}
+function alphaOf(hex) { return parseInt(String(hex).slice(7, 9), 16); }
 
 function withAlpha(hex, byte) {
-  return String(hex).slice(0, 7) + byte.toString(16).padStart(2, "0");
+  return String(hex).slice(0, 7) + Math.max(0, Math.min(255, byte)).toString(16).padStart(2, "0");
 }
 
-function setPreview() {
+function filterValue(b) {
+  if (!b || b.mode === "none") return "none";
+  var sat = "saturate(" + b.saturation + "%)";
+  if (b.mode === "gaussian") return "blur(" + b.radius + "px) " + sat;
+  if (b.mode === "mica") return "blur(" + Math.round(b.radius / 3) + "px) " + sat;
+  return "blur(" + Math.round(b.radius / 2) + "px) " + sat;
+}
+
+function paintPreview() {
   var t = state.theme;
   if (!t) return;
+  var b = blurBlock(t);
   var w = $("win");
-  w.style.setProperty("--t-bg", rgba(t.colors.background));
+  var opaque = t.mode === "opaque";
+
+  w.style.setProperty("--t-root", opaque ? rgba(t.colors.panel) : "transparent");
   w.style.setProperty("--t-panel", rgba(t.colors.panel));
   w.style.setProperty("--t-raised", rgba(t.colors.raised));
   w.style.setProperty("--t-line", rgba(t.colors.border));
@@ -492,33 +556,19 @@ function setPreview() {
   w.style.setProperty("--t-muted", rgba(t.colors.muted));
   w.style.setProperty("--t-sel", rgba(t.colors.interactive));
   w.style.setProperty("--t-accent", rgba(t.colors.focus));
+  w.style.setProperty("--t-filter", b.panels ? filterValue(b) : "none");
+
   w.style.borderRadius = t.layout.borderRadius + "px";
-  w.style.opacity = String(t.mode === "opaque" ? 1 : t.opacity);
+  w.style.opacity = String(opaque ? 1 : t.opacity);
   w.style.fontSize = (13 * t.layout.fontScale) + "px";
-  w.style.position = "relative";
 
-  var b = t.blur || { mode: "acrylic", radius: 18, saturation: 140, scrim: 35, panels: true };
-  var filter = "none";
-  if (b.mode === "gaussian") filter = "blur(" + b.radius + "px) saturate(" + b.saturation + "%)";
-  else if (b.mode === "acrylic") filter = "blur(" + Math.round(b.radius / 2) + "px) saturate(" + b.saturation + "%)";
-  else if (b.mode === "mica") filter = "blur(" + Math.round(b.radius / 3) + "px) saturate(" + b.saturation + "%)";
+  var wall = $("wall");
+  wall.classList.toggle("checker", state.view === "checker");
 
-  var side = w.querySelector(".side");
-  var title = w.querySelector(".title");
-  var cards = w.querySelectorAll(".cards .c");
-  var targets = [side, title].concat([].slice.call(cards));
-  targets.forEach(function (el) {
-    if (!el) return;
-    if (b.panels && filter !== "none") {
-      el.style.backdropFilter = filter;
-      el.style.webkitBackdropFilter = filter;
-    } else {
-      el.style.backdropFilter = "";
-      el.style.webkitBackdropFilter = "";
-    }
-  });
-
-  w.style.boxShadow = "0 26px 70px rgba(0,0,0,.55)";
+  var blurText = b.mode === "none"
+    ? "blur off"
+    : b.mode + " " + b.radius + "px, scrim " + b.scrim + "%, sat " + b.saturation + "%";
+  $("blurSummary").textContent = blurText;
   $("themeName").textContent = t.name;
   $("themeDesc").textContent = t.description || "";
 }
@@ -531,6 +581,7 @@ function renderPresets() {
     b.className = "preset";
     b.type = "button";
     b.setAttribute("aria-pressed", String(state.theme && state.theme.id === p.id));
+
     var strip = document.createElement("div");
     strip.className = "strip";
     [p.colors.panel, p.colors.raised, p.colors.focus, p.colors.accent].forEach(function (c) {
@@ -538,21 +589,26 @@ function renderPresets() {
       i.style.background = rgba(c);
       strip.appendChild(i);
     });
+
     var meta = document.createElement("div");
     meta.className = "meta";
-    var name = document.createElement("b");
-    name.textContent = p.name;
-    var desc = document.createElement("span");
-    desc.textContent = p.mode === "opaque" ? "Opaque" : (p.mode === "acrylic" ? "Acrylic" : "Transparent");
-    meta.appendChild(name);
-    meta.appendChild(desc);
+    var nm = document.createElement("b");
+    nm.textContent = p.name;
+    var sub = document.createElement("span");
+    var pb = p.blur || {};
+    sub.textContent = pb.mode && pb.mode !== "none" ? pb.mode : (p.mode === "opaque" ? "opaque" : "flat");
+    meta.appendChild(nm);
+    meta.appendChild(sub);
+
     b.appendChild(strip);
     b.appendChild(meta);
     b.onclick = function () {
       var copy = JSON.parse(JSON.stringify(p));
       copy.opacity = state.theme ? state.theme.opacity : p.opacity;
       state.theme = copy;
+      blurBlock(state.theme);
       syncControls();
+      renderColors();
       renderPresets();
       refresh();
     };
@@ -571,18 +627,16 @@ function renderColors() {
     var picker = document.createElement("input");
     picker.type = "color";
     picker.value = String(value).slice(0, 7);
-    picker.setAttribute("aria-label", LABELS[key]);
+    picker.setAttribute("aria-label", LABELS[key] + " colour");
 
     var info = document.createElement("div");
-    info.className = "info";
-
     var nm = document.createElement("div");
     nm.className = "nm";
     nm.textContent = LABELS[key];
 
-    var hexEl = document.createElement("div");
-    hexEl.className = "hex";
-    hexEl.textContent = value;
+    var hex = document.createElement("div");
+    hex.className = "hex";
+    hex.textContent = value;
 
     var row2 = document.createElement("div");
     row2.className = "row2";
@@ -592,28 +646,30 @@ function renderColors() {
     range.min = "0";
     range.max = "100";
     range.step = "1";
-    range.value = String(Math.round(alphaHex(value) / 2.55));
+    range.value = String(Math.round(alphaOf(value) / 2.55));
     range.setAttribute("aria-label", LABELS[key] + " alpha");
 
     var pct = document.createElement("em");
-    pct.textContent = Math.round(alphaHex(value) / 2.55) + "%";
+    pct.textContent = Math.round(alphaOf(value) / 2.55) + "%";
 
     row2.appendChild(range);
     row2.appendChild(pct);
 
     info.appendChild(nm);
-    info.appendChild(hexEl);
+    info.appendChild(hex);
     info.appendChild(row2);
 
     picker.oninput = function () {
       state.theme.colors[key] = picker.value + String(value).slice(7);
-      hexEl.textContent = state.theme.colors[key];
+      value = state.theme.colors[key];
+      hex.textContent = value;
       refresh();
     };
 
     range.oninput = function () {
       state.theme.colors[key] = withAlpha(state.theme.colors[key], Math.round(Number(range.value) * 2.55));
-      hexEl.textContent = state.theme.colors[key];
+      value = state.theme.colors[key];
+      hex.textContent = value;
       pct.textContent = range.value + "%";
       refresh();
     };
@@ -626,53 +682,52 @@ function renderColors() {
 
 function syncControls() {
   var t = state.theme;
+  var b = blurBlock(t);
   $("mode").value = t.mode;
   $("opacity").value = String(Math.round(t.opacity * 100));
   $("opacityVal").textContent = Math.round(t.opacity * 100) + "%";
-  $("acrylic").checked = !!t.acrylic;
+  $("opacity").disabled = t.mode === "opaque";
+  $("blurMode").value = b.mode;
+  $("blurRadius").value = String(b.radius);
+  $("blurRadiusVal").textContent = b.radius + "px";
+  $("blurScrim").value = String(b.scrim);
+  $("blurScrimVal").textContent = b.scrim + "%";
+  $("blurSaturation").value = String(b.saturation);
+  $("blurSatVal").textContent = b.saturation + "%";
+  $("blurPanels").checked = b.panels !== false;
   $("density").value = t.layout.density;
   $("radius").value = String(t.layout.borderRadius);
   $("radiusVal").textContent = t.layout.borderRadius + "px";
   $("fontScale").value = String(Math.round(t.layout.fontScale * 100));
   $("fontVal").textContent = Math.round(t.layout.fontScale * 100) + "%";
   $("customCss").value = t.layout.customCss || "";
-  $("opacity").disabled = t.mode === "opaque";
-
-  var b = t.blur || {};
-  $("blurMode").value = b.mode || "acrylic";
-  $("blurRadius").value = String(b.radius == null ? 18 : b.radius);
-  $("blurRadiusVal").textContent = (b.radius == null ? 18 : b.radius) + "px";
-  $("blurScrim").value = String(b.scrim == null ? 35 : b.scrim);
-  $("blurScrimVal").textContent = (b.scrim == null ? 35 : b.scrim) + "%";
-  $("blurSaturation").value = String(b.saturation == null ? 140 : b.saturation);
-  $("blurSatVal").textContent = (b.saturation == null ? 140 : b.saturation) + "%";
-  $("blurPanels").checked = b.panels !== false;
 }
 
 function readControls() {
   var t = state.theme;
+  var b = blurBlock(t);
   t.mode = $("mode").value;
   t.opacity = Number($("opacity").value) / 100;
-  t.acrylic = $("acrylic").checked;
+  t.acrylic = b.mode === "acrylic" || b.mode === "mica";
   t.layout.density = $("density").value;
   t.layout.borderRadius = Number($("radius").value);
   t.layout.fontScale = Number($("fontScale").value) / 100;
   t.layout.customCss = $("customCss").value;
-  if (!t.blur) t.blur = { mode: "acrylic", radius: 18, panels: true, scrim: 35, saturation: 140 };
-  t.blur.mode = $("blurMode").value;
-  t.blur.radius = Number($("blurRadius").value);
-  t.blur.scrim = Number($("blurScrim").value);
-  t.blur.saturation = Number($("blurSaturation").value);
-  t.blur.panels = $("blurPanels").checked;
+  b.mode = $("blurMode").value;
+  b.radius = Number($("blurRadius").value);
+  b.scrim = Number($("blurScrim").value);
+  b.saturation = Number($("blurSaturation").value);
+  b.panels = $("blurPanels").checked;
 }
 
 var cssTimer = null;
 function refresh() {
-  setPreview();
+  paintPreview();
   clearTimeout(cssTimer);
   cssTimer = setTimeout(function () {
     post("/api/desktop/preview", state.theme).then(function (r) {
       $("cssOut").textContent = r.css;
+      $("cssSize").textContent = r.css.length + " bytes";
     }).catch(function (e) {
       $("cssOut").textContent = "CSS preview failed: " + e.message;
     });
@@ -686,34 +741,37 @@ function renderState() {
   var banner = $("banner");
 
   if (!p.exists) {
-    pill.className = "state off";
+    pill.className = "pill warn";
     text.textContent = "Desktop app not found";
-    banner.innerHTML = '<div class="step warn"><h3>OpenCode Desktop not detected</h3>' +
-      '<p>Install OpenCode Desktop, then reload this page.</p></div>';
-  } else if (p.patched) {
-    pill.className = "state on";
-    text.textContent = "Installed on OpenCode " + p.version + (p.acrylic ? ", blurred" : "");
-    banner.innerHTML = '<div class="step ok"><h3>Theme engine installed</h3>' +
-      '<p>' + (p.acrylic
-        ? 'Background blur is active. Restart OpenCode Desktop to see color changes.'
-        : 'Background is transparent but sharp. Click <b>Make background blurred</b> for gaussian blur.') + '</p></div>';
-  } else {
-    pill.className = "state off";
-    text.textContent = "Not installed yet";
-    banner.innerHTML = '<div class="step"><h3>One install step</h3>' +
-      '<p>OpenCode Desktop only loads built in themes, so this writes a small loader into the app once.</p>' +
-      '<ol><li>Pick a preset and tune it here.</li>' +
-      '<li>Fully quit OpenCode Desktop.</li>' +
-      '<li>Click <b>Install to OpenCode</b>.</li>' +
-      '<li>Start OpenCode Desktop again.</li></ol></div>';
+    banner.innerHTML = '<div class="note warn"><div><b>OpenCode Desktop not detected.</b> Install it, then reload this page.</div></div>';
+    return;
   }
+  if (p.patched) {
+    pill.className = "pill on";
+    text.textContent = "Installed on " + p.version;
+    banner.innerHTML = '<div class="note ok"><div><b>Theme engine is installed.</b> Blur and colors load on every start. Change something, press Install, then restart OpenCode.</div></div>';
+    return;
+  }
+  pill.className = "pill warn";
+  text.textContent = "Not installed yet";
+  banner.innerHTML = '<div class="note"><div><b>One install step.</b> OpenCode Desktop only loads built in themes, so this writes a small loader once.' +
+    '<ol><li>Pick a preset and tune the blur.</li><li>Quit OpenCode Desktop completely.</li><li>Press Install to OpenCode.</li><li>Start OpenCode Desktop.</li></ol></div></div>';
 }
 
 function setBusy(on) {
   state.busy = on;
   $("btnInstall").disabled = on;
   $("btnRestore").disabled = on;
+  $("btnBlur").disabled = on;
   $("btnInstall").textContent = on ? "Working" : "Install to OpenCode";
+}
+
+function handleFailure(e) {
+  if (/close/i.test(e.message)) {
+    toast("Quit OpenCode Desktop completely, then press the button again.", "warn");
+  } else {
+    toast(e.message, "err");
+  }
 }
 
 function install() {
@@ -722,16 +780,24 @@ function install() {
   setBusy(true);
   post("/api/desktop/install", { confirm: true, theme: state.theme })
     .then(function (r) {
-      toast("Installed. Backup saved as " + (r.backup ? r.backup.split("\\").pop() : "n/a") + ". Restart OpenCode Desktop to see it.", "ok");
+      var name = r.backup ? r.backup.split("\\").pop() : "n/a";
+      toast("Installed. Backup " + name + ". Restart OpenCode to see it.", "ok");
       return load();
     })
-    .catch(function (e) {
-      if (/close/i.test(e.message)) {
-        toast("Quit OpenCode Desktop completely, then click Install again.", "warn");
-      } else {
-        toast(e.message, "err");
-      }
+    .catch(handleFailure)
+    .finally(function () { setBusy(false); });
+}
+
+function blurOnly() {
+  if (state.busy) return;
+  readControls();
+  setBusy(true);
+  post("/api/desktop/blur", { confirm: true })
+    .then(function () {
+      toast("Blur applied. Restart OpenCode to see it.", "ok");
+      return load();
     })
+    .catch(handleFailure)
     .finally(function () { setBusy(false); });
 }
 
@@ -741,43 +807,20 @@ function restore() {
   setBusy(true);
   post("/api/desktop/restore", { confirm: true })
     .then(function (r) {
-      toast(r.restore.alreadyRestored ? "Already original, nothing to restore." : "Original app restored. Theme data kept.", "ok");
+      toast(r.restore.alreadyRestored ? "Already original." : "Original app restored.", "ok");
       return load();
     })
-    .catch(function (e) {
-      if (/close/i.test(e.message)) {
-        toast("Quit OpenCode Desktop completely, then try again.", "warn");
-      } else {
-        toast(e.message, "err");
-      }
-    })
-    .finally(function () { setBusy(false); });
-}
-
-function blurBackground() {
-  if (state.busy) return;
-  setBusy(true);
-  post("/api/desktop/blur", { confirm: true })
-    .then(function (r) {
-      toast("Background blur enabled. Restart OpenCode Desktop to see it.", "ok");
-      return load();
-    })
-    .catch(function (e) {
-      if (/close/i.test(e.message)) {
-        toast("Quit OpenCode Desktop completely, then click again.", "warn");
-      } else {
-        toast(e.message, "err");
-      }
-    })
+    .catch(handleFailure)
     .finally(function () { setBusy(false); });
 }
 
 function resetColors() {
   if (!state.presets.length) return;
   var match = state.presets.filter(function (p) { return p.id === state.theme.id; })[0] || state.presets[0];
-  var opacity = state.theme.opacity;
+  var keep = { opacity: state.theme.opacity, view: state.view };
   state.theme = JSON.parse(JSON.stringify(match));
-  state.theme.opacity = opacity;
+  blurBlock(state.theme);
+  state.theme.opacity = keep.opacity;
   syncControls();
   renderColors();
   renderPresets();
@@ -790,9 +833,7 @@ function load() {
     state.presets = s.presets;
     state.patch = s.patch;
     state.theme = s.theme;
-    if (!state.theme.blur) {
-      state.theme.blur = { mode: "acrylic", radius: 18, panels: true, scrim: 35, saturation: 140 };
-    }
+    blurBlock(state.theme);
     syncControls();
     renderColors();
     renderPresets();
@@ -804,55 +845,65 @@ function load() {
   });
 }
 
-$("mode").onchange = function () { readControls(); syncControls(); refresh(); };
-$("density").onchange = function () { readControls(); refresh(); };
-$("opacity").oninput = function () {
+["mode", "density"].forEach(function (id) {
+  $(id).addEventListener("change", function () { readControls(); syncControls(); refresh(); });
+});
+
+$("opacity").addEventListener("input", function () {
   readControls();
   $("opacityVal").textContent = $("opacity").value + "%";
   refresh();
-};
-$("acrylic").oninput = function () { readControls(); refresh(); };
-$("radius").oninput = function () {
+});
+
+$("blurMode").addEventListener("change", function () { readControls(); refresh(); });
+
+[["blurRadius", "blurRadiusVal", "px"], ["blurScrim", "blurScrimVal", "%"], ["blurSaturation", "blurSatVal", "%"]].forEach(function (pair) {
+  $(pair[0]).addEventListener("input", function () {
+    readControls();
+    $(pair[1]).textContent = $(pair[0]).value + pair[2];
+    refresh();
+  });
+});
+
+$("blurPanels").addEventListener("input", function () { readControls(); refresh(); });
+
+$("radius").addEventListener("input", function () {
   readControls();
   $("radiusVal").textContent = $("radius").value + "px";
   refresh();
-};
-$("fontScale").oninput = function () {
+});
+
+$("fontScale").addEventListener("input", function () {
   readControls();
   $("fontVal").textContent = $("fontScale").value + "%";
   refresh();
-};
-$("customCss").oninput = function () { readControls(); refresh(); };
+});
 
-$("blurMode").onchange = function () { readControls(); refresh(); };
-$("blurRadius").oninput = function () {
-  readControls();
-  $("blurRadiusVal").textContent = $("blurRadius").value + "px";
-  refresh();
-};
-$("blurScrim").oninput = function () {
-  readControls();
-  $("blurScrimVal").textContent = $("blurScrim").value + "%";
-  refresh();
-};
-$("blurSaturation").oninput = function () {
-  readControls();
-  $("blurSatVal").textContent = $("blurSaturation").value + "%";
-  refresh();
-};
-$("blurPanels").oninput = function () { readControls(); refresh(); };
+$("customCss").addEventListener("input", function () { readControls(); refresh(); });
+
 $("btnInstall").onclick = install;
+$("btnBlur").onclick = blurOnly;
 $("btnRestore").onclick = restore;
-$("btnBlur").onclick = blurBackground;
 $("btnReset").onclick = resetColors;
 
-document.querySelectorAll("[data-tab]").forEach(function (btn) {
+$("copyCss").onclick = function () {
+  navigator.clipboard.writeText($("cssOut").textContent).then(function () {
+    toast("CSS copied.", "ok");
+  });
+};
+
+document.querySelectorAll("[data-view]").forEach(function (btn) {
   btn.onclick = function () {
-    document.querySelectorAll("[data-tab]").forEach(function (b) {
-      b.setAttribute("aria-selected", String(b === btn));
+    var view = btn.dataset.view;
+    state.view = view;
+    document.querySelectorAll("[data-view]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b === btn));
     });
-    $("tab-preview").classList.toggle("hide", btn.dataset.tab !== "preview");
-    $("tab-css").classList.toggle("hide", btn.dataset.tab !== "css");
+    var showPreview = view !== "css";
+    $("view-preview").classList.toggle("hide", !showPreview);
+    $("view-css").classList.toggle("hide", showPreview);
+    $("wall").classList.toggle("checker", view === "checker");
+    if (showPreview) paintPreview();
   };
 });
 

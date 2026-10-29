@@ -136,7 +136,10 @@ function generateCss(themeInput) {
   const c = theme.colors;
   const l = theme.layout;
   const opaque = theme.mode === 'opaque';
-  const bg = opaque ? rgba(c.panel) : rgba(c.background);
+  // In any transparent mode the root must stay clear, otherwise it paints over
+  // the window material and no blur or wallpaper can show through.
+  const bg = opaque ? rgba(c.panel) : 'transparent';
+  // Layer tokens are what panels and cards paint with, so they keep the user colour.
   const layers = [c.panel, c.raised, c.sunken, c.raised];
   const b = theme.blur;
   const radius = b.radius;
@@ -221,8 +224,9 @@ html::before {
   --ots-radius: ${l.borderRadius}px;
   --ots-font-scale: ${l.fontScale};
 }
-html, body, #root {
+html, body, #root, #app, .app {
   background: ${bg} !important;
+  background-color: ${bg} !important;
 }
 body {
   font-size: calc(14px * ${l.fontScale});
