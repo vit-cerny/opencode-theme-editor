@@ -262,7 +262,10 @@ pre.css{
         <label for="acrylic">Acrylic blur (Windows 11)</label>
         <input type="checkbox" id="acrylic">
       </div>
-      <p class="muted" id="modeNote">Transparent needs one install step, then a restart.</p>
+      <p class="muted" id="modeNote">Transparent shows your wallpaper sharp. Acrylic adds a gaussian blur behind the window.</p>
+      <div class="row" style="margin-top:8px">
+        <button id="btnBlur" style="flex:1">Make background blurred</button>
+      </div>
     </div>
 
     <div class="sec-block">
@@ -614,9 +617,11 @@ function renderState() {
       '<p>Install OpenCode Desktop, then reload this page.</p></div>';
   } else if (p.patched) {
     pill.className = "state on";
-    text.textContent = "Installed on OpenCode " + p.version;
+    text.textContent = "Installed on OpenCode " + p.version + (p.acrylic ? ", blurred" : "");
     banner.innerHTML = '<div class="step ok"><h3>Theme engine installed</h3>' +
-      '<p>Your theme loads every time OpenCode Desktop starts. Click <b>Install to OpenCode</b> to update colors, then restart the app.</p></div>';
+      '<p>' + (p.acrylic
+        ? 'Background blur is active. Restart OpenCode Desktop to see color changes.'
+        : 'Background is transparent but sharp. Click <b>Make background blurred</b> for gaussian blur.') + '</p></div>';
   } else {
     pill.className = "state off";
     text.textContent = "Not installed yet";
@@ -674,6 +679,24 @@ function restore() {
     .finally(function () { setBusy(false); });
 }
 
+function blurBackground() {
+  if (state.busy) return;
+  setBusy(true);
+  post("/api/desktop/blur", { confirm: true })
+    .then(function (r) {
+      toast("Background blur enabled. Restart OpenCode Desktop to see it.", "ok");
+      return load();
+    })
+    .catch(function (e) {
+      if (/close/i.test(e.message)) {
+        toast("Quit OpenCode Desktop completely, then click again.", "warn");
+      } else {
+        toast(e.message, "err");
+      }
+    })
+    .finally(function () { setBusy(false); });
+}
+
 function resetColors() {
   if (!state.presets.length) return;
   var match = state.presets.filter(function (p) { return p.id === state.theme.id; })[0] || state.presets[0];
@@ -724,6 +747,7 @@ $("fontScale").oninput = function () {
 $("customCss").oninput = function () { readControls(); refresh(); };
 $("btnInstall").onclick = install;
 $("btnRestore").onclick = restore;
+$("btnBlur").onclick = blurBackground;
 $("btnReset").onclick = resetColors;
 
 document.querySelectorAll("[data-tab]").forEach(function (btn) {

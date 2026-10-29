@@ -14,6 +14,7 @@ const PACKAGE_SHA256 = '1da7aa46042c71f57195e8c29c27f58ec9592cde28227d71afddcbe6
 const SNIPPET = 'backgroundColor:k9(),...process.platform===`darwin`?';
 const NATIVE_OLD = 'backgroundColor:k9(),';
 const NATIVE_NEW = 'backgroundColor:k9(),transparent:!0,';
+const ACRYLIC_NEW = 'backgroundColor:"#00000000",backgroundMaterial:"acrylic",';
 const OLD_IMPORT = 'import r,{BrowserWindow as i,app as a,ipcMain as o,nativeTheme as s,net as c,protocol as l,screen as u,shell as d}from"electron";';
 const NEW_IMPORT = 'import r,{app as a,ipcMain as o,nativeTheme as s,net as c,protocol as l,screen as u,shell as d}from"electron";import{BrowserWindow as i}from"./theme-studio-bootstrap.mjs";';
 
@@ -64,7 +65,9 @@ function inspect(file) {
       const p = readEntry(a, 'package.json'); const pkg = JSON.parse(p.data.toString('utf8')); out.version = pkg.version;
       if (String(pkg.main).replace(/^\.\//, '') !== MAIN_PATH) fail('Unexpected main entry');
       const m = readEntry(a, MAIN_PATH); out.mainSha256 = hash(m.data); out.mainBytes = m.data.length;
-      out.snippetFound = m.data.includes(SNIPPET); out.nativeTransparency = m.data.includes(NATIVE_NEW);
+      out.snippetFound = m.data.includes(SNIPPET);
+      out.nativeTransparency = m.data.includes(NATIVE_NEW);
+      out.acrylic = m.data.includes(ACRYLIC_NEW);
       if (entry(a, BOOTSTRAP_PATH, true)) { out.patched = true; out.state = 'patched'; out.dryRun = { action: 'none', writes: false }; return out; }
       if (out.version !== VERSION || out.sha256 !== ARCHIVE_SHA256 || out.mainSha256 !== MAIN_SHA256 || hash(p.data) !== PACKAGE_SHA256) out.reason = 'Unknown version or SHA256; refusing to patch';
       else if (!out.snippetFound || m.data.indexOf(SNIPPET) !== m.data.lastIndexOf(SNIPPET)) out.reason = 'Expected one native-window snippet';
@@ -79,7 +82,7 @@ function status(file) { return inspect(file); }
 function integrity(data) { return { algorithm: 'SHA256', hash: hash(data), blockSize: 4194304, blocks: [hash(data)] }; }
 function validateSource(source) { if (typeof source !== 'string' && !Buffer.isBuffer(source)) fail('bootstrapSource must be string or Buffer'); const b = Buffer.isBuffer(source) ? Buffer.from(source) : Buffer.from(source, 'utf8'); if (!b.length || b.length > 1024 * 1024 || b.includes(0)) fail('Invalid bootstrap source'); if (!/from\s*["']electron["']/.test(b.toString('utf8'))) fail('Bootstrap must import electron'); return b; }
 
-function repack(a, source, output) {
+function repack(a, source, output, wantAcrylic) {
   const originalMain = readEntry(a, MAIN_PATH);
   const oldImport = Buffer.from(OLD_IMPORT, 'ascii');
   const index = originalMain.data.indexOf(oldImport);
@@ -92,7 +95,7 @@ function repack(a, source, output) {
   ]).toString('ascii');
   const nativeCount = mainText.split(NATIVE_OLD).length - 1;
   if (nativeCount !== 1) fail('Native window option marker is not unique');
-  const patchedMain = Buffer.from(mainText.replace(NATIVE_OLD, NATIVE_NEW), 'ascii');
+  const patchedMain = Buffer.from(mainText.replace(NATIVE_OLD, wantAcrylic ? ACRYLIC_NEW : NATIVE_NEW), 'ascii');
   const entries = [];
   function walk(node, prefix) {
     for (const [name, child] of Object.entries(node.files || {})) {
@@ -133,14 +136,19 @@ function verify(file, plan) {
     const m = readEntry(a, MAIN_PATH);
     const b = readEntry(a, BOOTSTRAP_PATH);
     if (!equal(m.data, plan.patchedMain) || !equal(b.data, plan.source)) fail('Post-write verification failed');
-    if (!m.data.includes(NATIVE_NEW)) fail('Native window option missing after patch');
+    if (!m.data.includes(NATIVE_NEW) && !m.data.includes(ACRYLIC_NEW)) fail('Native window option missing after patch');
     return inspect(file);
   } finally { fs.closeSync(a.fd); }
 }
 
-function apply(file, bootstrapSource) {
+function apply(file, bootstrapSource, options) {
+  const opts = options && typeof options === 'object' ? options : {};
+  const wantAcrylic = opts.acrylic === true;
   const before = inspect(file);
-  if (before.patched) {
+  const desired = wantAcrylic ? ACRYLIC_NEW : NATIVE_NEW;
+  const current = wantAcrylic ? before.acrylic : before.nativeTransparency;
+
+  if (before.patched && current && !opts.force) {
     return {
       ok: true,
       applied: false,
@@ -150,9 +158,13 @@ function apply(file, bootstrapSource) {
       backup: before.backup,
       backupPath: before.backup,
       version: before.version,
+      blur: before.acrylic,
       before: before.archiveSha256,
       after: before.archiveSha256
     };
+  }
+  if (before.patched && !current) {
+    return { ok: false, applied: false, needsReinstall: true, refused: true, reason: 'Installed with a different window mode; restore first, then install', asarPath: path.resolve(file), backup: before.backup };
   }
   if (!before.supported) return { ok: false, applied: false, refused: true, reason: before.reason, asarPath: path.resolve(file), backup: before.backup, dryRun: before.dryRun };
   const source = validateSource(bootstrapSource);
@@ -163,7 +175,7 @@ function apply(file, bootstrapSource) {
   const a = openArchive(file);
   try {
     try {
-      const plan = repack(a, source, temp);
+      const plan = repack(a, source, temp, wantAcrylic);
       const check = openArchive(temp); fs.closeSync(check.fd);
       fs.copyFileSync(temp, file);
       const after = verify(file, plan);

@@ -213,6 +213,7 @@ function desktopAppInfo() {
     nativeTransparency: info.nativeTransparency,
     backup: info.backup,
     error: info.error || null,
+    acrylic: !!info.acrylic,
     writable: info.writable !== false
   };
 }
@@ -302,8 +303,24 @@ function handleDesktopPatch(res, req) {
       writeDesktopFile(desktopCssPath, desktopTheme.generateCss(theme));
     }
     const bootstrapSource = fs.readFileSync(bootstrapPath, 'utf8');
-    const result = desktopPatcher.apply(desktopAsar, bootstrapSource, { nativeTransparency: !!(theme && theme.nativeTransparency) });
+    const result = desktopPatcher.apply(desktopAsar, bootstrapSource, { acrylic: !!(theme && theme.acrylic && theme.mode !== 'opaque') });
     sendJson(res, 200, { ok: true, theme: theme, patch: result });
+  });
+}
+
+function handleDesktopBlur(res, req) {
+  return readBody(req).then(parseJsonBody).then((body) => {
+    if (!body || body.confirm !== true) throw httpError(400, 'confirm must be true');
+    assertDesktopClosed();
+    const config = readDesktopConfig();
+    const current = Object.keys(config).length ? config : listDesktopPresets()[0];
+    const next = Object.assign({}, current, { mode: 'acrylic', acrylic: true });
+    const theme = desktopTheme.normalize(next);
+    writeDesktopFile(desktopConfigPath, JSON.stringify(theme, null, 2) + '\n');
+    writeDesktopFile(desktopCssPath, desktopTheme.generateCss(theme));
+    const bootstrapSource = fs.readFileSync(bootstrapPath, 'utf8');
+    const result = desktopPatcher.apply(desktopAsar, bootstrapSource, { acrylic: true, force: true });
+    sendJson(res, 200, { ok: true, theme: theme, patch: result, backup: result.backup || null });
   });
 }
 
@@ -324,7 +341,7 @@ function handleDesktopInstall(res, req) {
     writeDesktopFile(desktopConfigPath, JSON.stringify(theme, null, 2) + '\n');
     writeDesktopFile(desktopCssPath, desktopTheme.generateCss(theme));
     const bootstrapSource = fs.readFileSync(bootstrapPath, 'utf8');
-    const result = desktopPatcher.apply(desktopAsar, bootstrapSource);
+    const result = desktopPatcher.apply(desktopAsar, bootstrapSource, { acrylic: theme.acrylic === true && theme.mode !== 'opaque' });
     sendJson(res, 200, {
       ok: true,
       theme: theme,
@@ -568,6 +585,7 @@ const server = http.createServer((req, res) => {
     if (req.method === 'POST' && p === '/api/desktop/apply') return handleDesktopApply(res, req).catch((e) => fail(res, e));
     if (req.method === 'POST' && p === '/api/desktop/patch') return handleDesktopPatch(res, req).catch((e) => fail(res, e));
     if (req.method === 'POST' && p === '/api/desktop/install') return handleDesktopInstall(res, req).catch((e) => fail(res, e));
+    if (req.method === 'POST' && p === '/api/desktop/blur') return handleDesktopBlur(res, req).catch((e) => fail(res, e));
     if (req.method === 'POST' && p === '/api/desktop/restore') return handleDesktopRestore(res, req).catch((e) => fail(res, e));
     if (req.method === 'GET' && p === '/api/theme') return handleGetTheme(res, u.query);
     if (req.method === 'GET' && p === '/api/export') return handleExport(res, u.query);
