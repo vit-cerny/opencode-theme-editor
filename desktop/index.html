@@ -136,7 +136,13 @@ h2.sec{
 .frame{padding:22px;background:
   radial-gradient(1100px 500px at 15% -10%,#1a2a38 0,transparent 60%),
   radial-gradient(800px 400px at 85% 110%,#1b2436 0,transparent 55%),
-  #0d1015;}
+  #0d1015;position:relative}
+.frame::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(90deg,#1f2d3d 1px,transparent 1px),
+    linear-gradient(#1f2d3d 1px,transparent 1px);
+  background-size:34px 34px;
+}
 .win{
   border-radius:12px;overflow:hidden;border:1px solid var(--t-line,#333);
   box-shadow:0 26px 70px rgba(0,0,0,.55);
@@ -265,6 +271,35 @@ pre.css{
       <p class="muted" id="modeNote">Transparent shows your wallpaper sharp. Acrylic adds a gaussian blur behind the window.</p>
       <div class="row" style="margin-top:8px">
         <button id="btnBlur" style="flex:1">Make background blurred</button>
+      </div>
+
+      <div class="sec-block" style="margin-top:20px;margin-bottom:0">
+        <h2 class="sec">Blur</h2>
+        <div class="ctl">
+          <label for="blurMode">Blur type</label>
+          <select id="blurMode">
+            <option value="none">None (sharp)</option>
+            <option value="acrylic">Acrylic</option>
+            <option value="mica">Mica</option>
+            <option value="gaussian">Gaussian (CSS)</option>
+          </select>
+        </div>
+        <div class="ctl full">
+          <label for="blurRadius">Blur radius <span class="val" id="blurRadiusVal">18px</span></label>
+          <input type="range" id="blurRadius" min="0" max="64" step="1" value="18">
+        </div>
+        <div class="ctl full">
+          <label for="blurScrim">Scrim strength <span class="val" id="blurScrimVal">35%</span></label>
+          <input type="range" id="blurScrim" min="0" max="90" step="1" value="35">
+        </div>
+        <div class="ctl full">
+          <label for="blurSaturation">Saturation <span class="val" id="blurSatVal">140%</span></label>
+          <input type="range" id="blurSaturation" min="100" max="200" step="5" value="140">
+        </div>
+        <div class="ctl">
+          <label for="blurPanels">Frost panels too</label>
+          <input type="checkbox" id="blurPanels" checked>
+        </div>
       </div>
     </div>
 
@@ -460,6 +495,30 @@ function setPreview() {
   w.style.borderRadius = t.layout.borderRadius + "px";
   w.style.opacity = String(t.mode === "opaque" ? 1 : t.opacity);
   w.style.fontSize = (13 * t.layout.fontScale) + "px";
+  w.style.position = "relative";
+
+  var b = t.blur || { mode: "acrylic", radius: 18, saturation: 140, scrim: 35, panels: true };
+  var filter = "none";
+  if (b.mode === "gaussian") filter = "blur(" + b.radius + "px) saturate(" + b.saturation + "%)";
+  else if (b.mode === "acrylic") filter = "blur(" + Math.round(b.radius / 2) + "px) saturate(" + b.saturation + "%)";
+  else if (b.mode === "mica") filter = "blur(" + Math.round(b.radius / 3) + "px) saturate(" + b.saturation + "%)";
+
+  var side = w.querySelector(".side");
+  var title = w.querySelector(".title");
+  var cards = w.querySelectorAll(".cards .c");
+  var targets = [side, title].concat([].slice.call(cards));
+  targets.forEach(function (el) {
+    if (!el) return;
+    if (b.panels && filter !== "none") {
+      el.style.backdropFilter = filter;
+      el.style.webkitBackdropFilter = filter;
+    } else {
+      el.style.backdropFilter = "";
+      el.style.webkitBackdropFilter = "";
+    }
+  });
+
+  w.style.boxShadow = "0 26px 70px rgba(0,0,0,.55)";
   $("themeName").textContent = t.name;
   $("themeDesc").textContent = t.description || "";
 }
@@ -578,6 +637,16 @@ function syncControls() {
   $("fontVal").textContent = Math.round(t.layout.fontScale * 100) + "%";
   $("customCss").value = t.layout.customCss || "";
   $("opacity").disabled = t.mode === "opaque";
+
+  var b = t.blur || {};
+  $("blurMode").value = b.mode || "acrylic";
+  $("blurRadius").value = String(b.radius == null ? 18 : b.radius);
+  $("blurRadiusVal").textContent = (b.radius == null ? 18 : b.radius) + "px";
+  $("blurScrim").value = String(b.scrim == null ? 35 : b.scrim);
+  $("blurScrimVal").textContent = (b.scrim == null ? 35 : b.scrim) + "%";
+  $("blurSaturation").value = String(b.saturation == null ? 140 : b.saturation);
+  $("blurSatVal").textContent = (b.saturation == null ? 140 : b.saturation) + "%";
+  $("blurPanels").checked = b.panels !== false;
 }
 
 function readControls() {
@@ -589,6 +658,12 @@ function readControls() {
   t.layout.borderRadius = Number($("radius").value);
   t.layout.fontScale = Number($("fontScale").value) / 100;
   t.layout.customCss = $("customCss").value;
+  if (!t.blur) t.blur = { mode: "acrylic", radius: 18, panels: true, scrim: 35, saturation: 140 };
+  t.blur.mode = $("blurMode").value;
+  t.blur.radius = Number($("blurRadius").value);
+  t.blur.scrim = Number($("blurScrim").value);
+  t.blur.saturation = Number($("blurSaturation").value);
+  t.blur.panels = $("blurPanels").checked;
 }
 
 var cssTimer = null;
@@ -715,6 +790,9 @@ function load() {
     state.presets = s.presets;
     state.patch = s.patch;
     state.theme = s.theme;
+    if (!state.theme.blur) {
+      state.theme.blur = { mode: "acrylic", radius: 18, panels: true, scrim: 35, saturation: 140 };
+    }
     syncControls();
     renderColors();
     renderPresets();
@@ -745,6 +823,24 @@ $("fontScale").oninput = function () {
   refresh();
 };
 $("customCss").oninput = function () { readControls(); refresh(); };
+
+$("blurMode").onchange = function () { readControls(); refresh(); };
+$("blurRadius").oninput = function () {
+  readControls();
+  $("blurRadiusVal").textContent = $("blurRadius").value + "px";
+  refresh();
+};
+$("blurScrim").oninput = function () {
+  readControls();
+  $("blurScrimVal").textContent = $("blurScrim").value + "%";
+  refresh();
+};
+$("blurSaturation").oninput = function () {
+  readControls();
+  $("blurSatVal").textContent = $("blurSaturation").value + "%";
+  refresh();
+};
+$("blurPanels").oninput = function () { readControls(); refresh(); };
 $("btnInstall").onclick = install;
 $("btnRestore").onclick = restore;
 $("btnBlur").onclick = blurBackground;

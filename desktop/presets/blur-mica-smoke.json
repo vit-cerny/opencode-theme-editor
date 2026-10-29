@@ -1,0 +1,39 @@
+{
+  "id": "blur-mica-smoke",
+  "name": "Mica Smoke",
+  "description": "Windows 11 mica material with a light blur and a neutral smoke tint. Closest to the native desktop look.",
+  "mode": "acrylic",
+  "acrylic": true,
+  "opacity": 1,
+  "blur": {
+    "mode": "mica",
+    "radius": 16,
+    "panels": true,
+    "scrim": 20,
+    "saturation": 120
+  },
+  "colors": {
+    "background": "#1c1f260f",
+    "panel": "#22262ee0",
+    "raised": "#2c313acc",
+    "sunken": "#171a20cc",
+    "interactive": "#3a404ab3",
+    "text": "#e9ecf2",
+    "muted": "#9aa2b0",
+    "strong": "#ffffff",
+    "border": "#5a637373",
+    "subtle": "#5a637340",
+    "focus": "#9ec7e8",
+    "accent": "#a8b4c4",
+    "success": "#8fd0a0",
+    "warning": "#e2be7a",
+    "error": "#ef8a96"
+  },
+  "layout": {
+    "density": "comfortable",
+    "sidebarWidth": 264,
+    "borderRadius": 10,
+    "fontScale": 1,
+    "customCss": ""
+  }
+}

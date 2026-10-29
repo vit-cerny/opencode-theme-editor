@@ -1,0 +1,39 @@
+{
+  "id": "blur-soft-acrylic",
+  "name": "Soft Acrylic",
+  "description": "Light gaussian blur with a gentle scrim. Panels stay readable over a busy wallpaper.",
+  "mode": "acrylic",
+  "acrylic": true,
+  "opacity": 0.94,
+  "blur": {
+    "mode": "acrylic",
+    "radius": 12,
+    "panels": true,
+    "scrim": 28,
+    "saturation": 130
+  },
+  "colors": {
+    "background": "#2e344012",
+    "panel": "#2e3440d9",
+    "raised": "#3b4252c4",
+    "sunken": "#242933c4",
+    "interactive": "#434c5eaa",
+    "text": "#eceff4",
+    "muted": "#9aa8bb",
+    "strong": "#ffffff",
+    "border": "#4c566a80",
+    "subtle": "#434c5e59",
+    "focus": "#88c0d0",
+    "accent": "#81a1c1",
+    "success": "#a3be8c",
+    "warning": "#ebcb8b",
+    "error": "#bf616a"
+  },
+  "layout": {
+    "density": "comfortable",
+    "sidebarWidth": 268,
+    "borderRadius": 12,
+    "fontScale": 1,
+    "customCss": ""
+  }
+}

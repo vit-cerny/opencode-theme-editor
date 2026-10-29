@@ -1,0 +1,39 @@
+{
+  "id": "blur-heavy-frost",
+  "name": "Heavy Frost",
+  "description": "Strong gaussian blur with a saturated scrim. Background detail disappears, panels read like frosted glass.",
+  "mode": "acrylic",
+  "acrylic": true,
+  "opacity": 0.9,
+  "blur": {
+    "mode": "gaussian",
+    "radius": 40,
+    "panels": true,
+    "scrim": 48,
+    "saturation": 165
+  },
+  "colors": {
+    "background": "#10162318",
+    "panel": "#182130d9",
+    "raised": "#22303fc4",
+    "sunken": "#0e1520c4",
+    "interactive": "#2f4152aa",
+    "text": "#e8eef6",
+    "muted": "#93a2b5",
+    "strong": "#ffffff",
+    "border": "#7fa0c04d",
+    "subtle": "#7fa0c02b",
+    "focus": "#7dcfff",
+    "accent": "#8fb4d9",
+    "success": "#8fd6a4",
+    "warning": "#e8c07d",
+    "error": "#f28b9b"
+  },
+  "layout": {
+    "density": "comfortable",
+    "sidebarWidth": 276,
+    "borderRadius": 14,
+    "fontScale": 1,
+    "customCss": ""
+  }
+}

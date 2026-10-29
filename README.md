@@ -163,14 +163,39 @@ http://127.0.0.1:4288/desktop
 
 What you can change:
 
-- 6 presets in the preset shop
+- 9 presets in the preset shop, 3 of them blur presets
 - background mode: transparent, acrylic blur, opaque
 - window opacity slider
 - Windows 11 acrylic blur
+- blur type: none, acrylic, mica, or CSS gaussian
+- blur radius, scrim strength, saturation sliders
+- frost panels on or off
 - density, corner radius, font scale
 - 15 colour slots with per-colour alpha
 - custom CSS
 - live preview of the desktop window
+
+### Blur options
+
+| Type | What it does |
+|---|---|
+| None | Sharp background, no blur |
+| Acrylic | Windows 11 acrylic material, light blur |
+| Mica | Windows 11 mica material, lighter and more neutral |
+| Gaussian (CSS) | Real `backdrop-filter: blur()` at the radius you set |
+
+Acrylic and mica are OS materials applied to the window. Gaussian is applied to
+panels with CSS, so it works even when the OS material is unsupported.
+
+Sliders:
+
+- **Blur radius** 0-64px
+- **Scrim strength** 0-90%, darkens the background so text stays readable
+- **Saturation** 100-200%, keeps colours alive through the blur
+- **Frost panels** blurs the sidebar, cards and dialogs as well as the window
+
+Under `prefers-reduced-transparency` the generated CSS drops the blur and falls
+back to solid panels.
 
 ### Install it
 

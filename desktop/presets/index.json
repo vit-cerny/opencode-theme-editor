@@ -1,5 +1,8 @@
 {
   "presets": [
+    "blur-soft-acrylic",
+    "blur-heavy-frost",
+    "blur-mica-smoke",
     "nord-bluish",
     "glass-midnight",
     "acrylic-ocean",
