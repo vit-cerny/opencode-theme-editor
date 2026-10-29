@@ -11,6 +11,7 @@ const patcher = require('./patcher.cjs');
 
 const DATA = path.join(process.env.APPDATA || path.join(require('os').homedir(), 'AppData', 'Roaming'), 'opencode-theme-editor');
 const PRESETS = path.join(__dirname, 'presets');
+const ASAR = process.env.OPENCODE_DESKTOP_ASAR || patcher.defaultAsar();
 
 function loadPreset(name) {
   const file = path.join(PRESETS, name + '.json');
@@ -30,7 +31,7 @@ const args = process.argv.slice(2);
 const command = args[0] || 'status';
 
 if (command === 'status') {
-  const info = patcher.inspect(patcher.defaultAsar());
+  const info = patcher.inspect(ASAR);
   console.log(JSON.stringify({
     app: info.version,
     installed: info.patched,
@@ -48,7 +49,7 @@ if (command === 'status') {
   const preset = args[1] || 'nord-bluish';
   const written = writeTheme(loadPreset(preset));
   const source = fs.readFileSync(path.join(__dirname, 'bootstrap.mjs'), 'utf8');
-  const result = patcher.apply(patcher.defaultAsar(), source, {
+  const result = patcher.apply(ASAR, source, {
     acrylic: written.acrylic === true && written.mode !== 'opaque'
   });
   console.log(JSON.stringify({
@@ -65,7 +66,7 @@ if (command === 'status') {
   current.acrylic = true;
   const written = writeTheme(current);
   const source = fs.readFileSync(path.join(__dirname, 'bootstrap.mjs'), 'utf8');
-  const result = patcher.apply(patcher.defaultAsar(), source, { acrylic: true, force: true });
+  const result = patcher.apply(ASAR, source, { acrylic: true, force: true });
   console.log(JSON.stringify({
     theme: written.name,
     mode: written.mode,
@@ -75,7 +76,7 @@ if (command === 'status') {
     backup: result.backup
   }, null, 2));
 } else if (command === 'restore') {
-  console.log(JSON.stringify(patcher.restore(patcher.defaultAsar()), null, 2));
+  console.log(JSON.stringify(patcher.restore(ASAR), null, 2));
 } else {
   console.log('Usage: node desktop/cli.cjs [status|apply <preset>|install <preset>|blur|restore]');
   process.exitCode = 1;
